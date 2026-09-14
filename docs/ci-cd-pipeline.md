@@ -343,9 +343,48 @@ the `OPENCODE_API_KEY` secret for model inference.
 **Cost control:**
 
 - Runs only on PRs (not on every push)
-- Free-tier model via OpenCode (not GitHub Models)
+- Uses `opencode:opencode-go/deepseek-v4-flash` (configured in `.gga`), which
+  requires an active OpenCode subscription — model inference is **not free**;
+  it's billed against the `OPENCODE_API_KEY` repository secret (see
+  [Required Secrets](#required-secrets))
 - gga's caching skips files unchanged between PR updates
-- Estimated cost: **$0/month** (free-tier model)
+
+### Local Provider Override
+
+CI's provider is fixed in `.gga` for reproducibility, but developers are not
+locked into it locally. `gga` resolves its config in this precedence order
+(later wins): hardcoded defaults → `~/.config/gga/config` (user global) → `.gga`
+(project, committed) → `GGA_*` environment variables.
+
+Override the provider for a local run — Claude, Codex, GitHub Models, Ollama,
+etc. — without touching `.gga`, by exporting `GGA_*` variables first:
+
+```bash
+# Use Claude instead of OpenCode
+export GGA_PROVIDER="claude"
+gga run
+
+# Use Codex
+export GGA_PROVIDER="codex"
+gga run
+
+# Use GitHub Models
+export GGA_PROVIDER="github:gpt-4o"
+gga run
+
+# Use local Ollama
+export GGA_PROVIDER="ollama:llama3.2"
+gga run
+```
+
+Supported override variables:
+
+| Variable               | Overrides          |
+| ---------------------- | ------------------ |
+| `GGA_PROVIDER`         | `PROVIDER`         |
+| `GGA_TIMEOUT`          | `TIMEOUT`          |
+| `GGA_OPENCODE_VARIANT` | `OPENCODE_VARIANT` |
+| `GGA_OPENCODE_AGENT`   | `OPENCODE_AGENT`   |
 
 ## Future Improvements (v2+)
 
