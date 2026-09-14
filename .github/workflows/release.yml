@@ -193,8 +193,6 @@ jobs:
             echo "published=false" >> "$GITHUB_OUTPUT"
           else
             npm publish "dist/libs/halo-ui" --access public
-            git tag -a "${name}@${version}" -m "${name}@${version}"
-            git push origin "${name}@${version}"
 
             echo "${name}@${version}" >> /tmp/newly_published.txt
             echo "published=true" >> "$GITHUB_OUTPUT"
@@ -228,8 +226,10 @@ jobs:
           # (issue #92), so the GitHub Release identifies the published semver
           # at a glance. Single publishable package post-consolidation, so the
           # version is read directly — no multi-package dedup needed anymore.
-          # The <name>@<version> tag created by the publish step is left
-          # untouched.
+          # This is now the only git tag the release creates: the publish
+          # step stopped also tagging <name>@<version>, since it duplicated
+          # this tag on the same commit/version with no consumer reading it
+          # back (npm view is what gates re-publishing, not the tag).
           name="$(node -p "require('./libs/halo-ui/package.json').name")"
           version="$(node -p "require('./libs/halo-ui/package.json').version")"
           if [ -z "$version" ]; then
