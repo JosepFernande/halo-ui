@@ -1,0 +1,72 @@
+name: Deploy Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/showcase/**'
+      - 'libs/**'
+      - '.github/workflows/deploy-pages.yml'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+      - run: npm ci
+        env:
+          HUSKY: '0'
+      # Workaround temporal (ver issue #146): package-lock.json solo retiene
+      # metadata resuelta de binarios nativos optionalDependency para la
+      # plataforma que corrió npm install por última vez (Windows), así que
+      # npm ci en Linux no puede resolver lightningcss-linux-x64-gnu ni
+      # @tailwindcss/oxide-linux-x64-gnu (dependencia nativa de
+      # @tailwindcss/postcss, usada por el pipeline de Angular/PostCSS al
+      # compilar). A diferencia de esbuild, ninguno de los dos tiene un
+      # postinstall de fallback que los descargue solo. Ambos se instalan en
+      # UN SOLO `npm install` (no dos comandos separados): cada invocación de
+      # npm install hace su propia poda de paquetes "extraneous" sobre todo
+      # node_modules, y como estos binarios no se guardan en el lockfile
+      # (--no-save, a propósito), un segundo `npm install` independiente
+      # borraba el binario que el primero acababa de agregar.
+      - name: Fix missing lightningcss/@tailwindcss-oxide native binaries on Linux CI
+        run: |
+          LC_VERSION=$(node -p "require('./package-lock.json').packages['node_modules/lightningcss'].version")
+          OXIDE_VERSION=$(node -p "require('./package-lock.json').packages['node_modules/@tailwindcss/oxide'].version")
+          npm install --no-save --no-audit --no-fund "lightningcss@${LC_VERSION}" "@tailwindcss/oxide-linux-x64-gnu@${OXIDE_VERSION}"
+      - name: Restore Nx cache
+        uses: actions/cache@v4
+        with:
+          path: .nx/cache
+          key: nx-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            nx-${{ runner.os }}-
+      - uses: actions/configure-pages@v5
+      - run: npx nx build showcase --configuration=production --base-href=/halo-ui/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/showcase/browser
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
