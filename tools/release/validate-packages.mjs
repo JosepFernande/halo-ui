@@ -27,10 +27,12 @@
  *      `dependencies` or `peerDependencies` (no runtime cross-package
  *      dependency survives consolidation).
  *   4. Invariant: .github/workflows/release.yml must still publish from
- *      dist/libs/halo-ui, with an unregressed git tag/push step. If the
- *      publish step ever points back at the source (libs/halo-ui) or
- *      reverts to `changeset publish`, this fails explicitly instead of
- *      passing silently on a dist/ directory nobody publishes.
+ *      dist/libs/halo-ui. If the publish step ever points back at the source
+ *      (libs/halo-ui) or reverts to `changeset publish`, this fails explicitly
+ *      instead of passing silently on a dist/ directory nobody publishes.
+ *      The run-level release tag is validated separately in the
+ *      "Create release tag" step (post-#156 the per-package tag moved out of
+ *      the publish step so it is no longer duplicated).
  *
  * Usage: node tools/release/validate-packages.mjs  (run after `nx build`)
  */
@@ -194,12 +196,16 @@ export function extractStep(workflow, name) {
  * threat: "five brand-new tag refs pushed with an explicit refspec").
  *
  * Pure check (no shared-state side effects) so it is independently testable:
- * the publish step must still create an annotated tag with
- * `git tag -a "${name}@${version}"` and push it with `git push origin`, in
- * the implicit checkout cwd — no `git -C`/relative-path repo selection, and
- * no `--force`/`+refs` force-push escape hatch.
+ * the "Create release tag" step must still create an annotated tag for the
+ * run-level release (`release-v${version}`) and push it with
+ * `git push origin`, in the implicit checkout cwd — no `git -C`/relative-path
+ * repo selection, and no `--force`/`+refs` force-push escape hatch.
+ *
+ * Post-#156 the per-package `<name>@<version>` tag was removed from the
+ * publish step because it duplicated the run-level tag on the same commit.
+ * This check now targets the dedicated "Create release tag" step instead.
  */
-export function checkTagPushInvariant(step) {
+export function checkReleaseTagInvariant(step) {
   // Escape hatches checked first: an inserted -C/relative-path or
   // --force/+refs would also corrupt the exact-shape checks below, so
   // detecting them first gives a precise, non-misleading failure reason.
@@ -210,13 +216,16 @@ export function checkTagPushInvariant(step) {
     };
   }
   if (/--force\b/.test(step) || /\+refs\//.test(step)) {
-    return { ok: false, reason: 'publish step gained a --force or +refs escape hatch' };
+    return { ok: false, reason: 'tag push gained a --force or +refs escape hatch' };
   }
-  if (!/git tag -a\s+"\$\{name\}@\$\{version\}"/.test(step)) {
-    return { ok: false, reason: 'missing `git tag -a "${name}@${version}"`' };
+  if (!/release-v\$\{version\}/.test(step)) {
+    return { ok: false, reason: 'missing `release-v${version}` tag definition' };
   }
-  if (!/git push origin\s+"\$\{name\}@\$\{version\}"/.test(step)) {
-    return { ok: false, reason: 'missing `git push origin "${name}@${version}"`' };
+  if (!/git tag -a\s+/.test(step)) {
+    return { ok: false, reason: 'missing annotated `git tag -a`' };
+  }
+  if (!/git push origin\s+/.test(step)) {
+    return { ok: false, reason: 'missing `git push origin` for the release tag' };
   }
   return { ok: true };
 }
@@ -262,12 +271,21 @@ function checkPublishInvariant(workflow) {
   }
   log('  ok  release.yml — publish still targets dist/libs/halo-ui');
 
-  const tagPush = checkTagPushInvariant(step);
-  if (!tagPush.ok) {
-    failures.push(`release.yml invariant: publish step git tag/push regressed — ${tagPush.reason}`);
+  const tagStep = extractStep(workflow, 'Create release tag');
+  if (!tagStep) {
+    failures.push(
+      'release.yml invariant: "Create release tag" step not found — ' +
+        'the release tag can no longer be verified',
+    );
     return;
   }
-  log('  ok  release.yml — publish step still tags and pushes the published package');
+
+  const tagCheck = checkReleaseTagInvariant(tagStep);
+  if (!tagCheck.ok) {
+    failures.push(`release.yml invariant: release tag step regressed — ${tagCheck.reason}`);
+    return;
+  }
+  log('  ok  release.yml — release tag step still creates and pushes the version tag');
 }
 
 // `file://${process.argv[1]}` only matches import.meta.url on POSIX — on
