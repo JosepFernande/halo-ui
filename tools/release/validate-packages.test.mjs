@@ -4,11 +4,12 @@
 // introduced by the halo-ui consolidation (SDD change
 // consolidate-halo-ui-single-package, Phase 3 / PR3):
 //
-//   1. Git repository selection / Push state (#139 S3): the "Publish to npm
-//      from dist" step in release.yml must keep creating an annotated tag
-//      with `git tag -a "${name}@${version}"` and pushing it with
-//      `git push origin`, in the implicit checkout cwd (no `-C`/relative-path
-//      selection, no `--force`/`+refs`).
+//   1. Git repository selection / Push state (#139 S3): the "Create release
+//      tag" step in release.yml must keep creating an annotated run-level tag
+//      (`release-v${version}`) and pushing it with `git push origin`, in the
+//      implicit checkout cwd (no `-C`/relative-path selection, no
+//      `--force`/`+refs`). Post-#156 this no longer happens inside the publish
+//      step, so the validator targets the dedicated tag step.
 //   2. Publish-target invariant (replaces the old 5-package publish-order
 //      invariant, which no longer applies now that there is exactly one
 //      publishable lib): the publish step must still target
@@ -30,7 +31,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import {
   extractStep,
-  checkTagPushInvariant,
+  checkReleaseTagInvariant,
   checkDistPublishTargetInvariant,
   checkExportsShape,
   checkNoCrossPackageDeps,
@@ -50,11 +51,26 @@ const PUBLISH_STEP_OK = `- name: Publish to npm from dist
       echo "published=false" >> "$GITHUB_OUTPUT"
     else
       npm publish "dist/libs/halo-ui" --access public
-      git tag -a "\${name}@\${version}" -m "\${name}@\${version}"
-      git push origin "\${name}@\${version}"
-      echo "\${name}@\${version}" > /tmp/newly_published.txt
+      echo "\${name}@\${version}" >> /tmp/newly_published.txt
       echo "published=true" >> "$GITHUB_OUTPUT"
     fi
+- name: Next step
+  run: echo done
+`;
+
+const RELEASE_TAG_STEP_OK = `- name: Create release tag
+  if: steps.publish.outputs.published == 'true'
+  run: |
+    name="$(node -p "require('./libs/halo-ui/package.json').name")"
+    version="$(node -p "require('./libs/halo-ui/package.json').version")"
+    if [ -z "$version" ]; then
+      echo "::error::could not derive the published version"
+      exit 1
+    fi
+    TAG="release-v\${version}"
+    git tag -a "$TAG" -m "Release \${version}"
+    git push origin "$TAG"
+    echo "TAG=$TAG" >> "$GITHUB_ENV"
 - name: Next step
   run: echo done
 `;
@@ -66,43 +82,50 @@ test('extractStep pulls exactly the named step block', () => {
 });
 
 // ----------------------------------------------------------------------
-// Git tag/push invariant (#139 S3) — unchanged by the single-package
-// consolidation, still the same shape check.
+// Git tag/push invariant (#139 S3) — post-#156 the per-package tag moved
+// from the publish step into the dedicated "Create release tag" step.
 // ----------------------------------------------------------------------
 
-test('checkTagPushInvariant passes when the step still tags and pushes the published package', () => {
-  const step = extractStep(PUBLISH_STEP_OK, 'Publish to npm from dist');
-  const result = checkTagPushInvariant(step);
+test('checkReleaseTagInvariant passes when the step tags and pushes release-v${version}', () => {
+  const step = extractStep(RELEASE_TAG_STEP_OK, 'Create release tag');
+  const result = checkReleaseTagInvariant(step);
   assert.equal(result.ok, true);
 });
 
-test('checkTagPushInvariant fails when the annotated git tag step is missing', () => {
-  const stepWithoutTag = PUBLISH_STEP_OK.replace(/git tag -a[^\n]*\n/, '');
-  const result = checkTagPushInvariant(stepWithoutTag);
+test('checkReleaseTagInvariant fails when the release-v${version} tag definition is missing', () => {
+  const stepWithoutTag = RELEASE_TAG_STEP_OK.replace(/TAG="release-v\$\{version\}"\n/, '');
+  const result = checkReleaseTagInvariant(stepWithoutTag);
+  assert.equal(result.ok, false);
+  assert.match(result.reason, /release-v\$\{version\}/);
+});
+
+test('checkReleaseTagInvariant fails when the annotated git tag step is missing', () => {
+  const stepWithoutTag = RELEASE_TAG_STEP_OK.replace(/git tag -a[^\n]*\n/, '');
+  const result = checkReleaseTagInvariant(stepWithoutTag);
   assert.equal(result.ok, false);
   assert.match(result.reason, /git tag -a/);
 });
 
-test('checkTagPushInvariant fails when git push origin is missing', () => {
-  const stepWithoutPush = PUBLISH_STEP_OK.replace(/git push origin[^\n]*\n/, '');
-  const result = checkTagPushInvariant(stepWithoutPush);
+test('checkReleaseTagInvariant fails when git push origin is missing', () => {
+  const stepWithoutPush = RELEASE_TAG_STEP_OK.replace(/git push origin[^\n]*\n/, '');
+  const result = checkReleaseTagInvariant(stepWithoutPush);
   assert.equal(result.ok, false);
   assert.match(result.reason, /git push origin/);
 });
 
-test('checkTagPushInvariant fails on a repo-selection escape hatch (git -C or a relative path)', () => {
-  const stepWithDashC = PUBLISH_STEP_OK.replace('git tag -a', 'git -C ../other tag -a');
-  const result = checkTagPushInvariant(stepWithDashC);
+test('checkReleaseTagInvariant fails on a repo-selection escape hatch (git -C or a relative path)', () => {
+  const stepWithDashC = RELEASE_TAG_STEP_OK.replace('git tag -a', 'git -C ../other tag -a');
+  const result = checkReleaseTagInvariant(stepWithDashC);
   assert.equal(result.ok, false);
   assert.match(result.reason, /-C|relative path/);
 });
 
-test('checkTagPushInvariant fails on a force-push or refspec escape hatch', () => {
-  const stepWithForce = PUBLISH_STEP_OK.replace(
-    'git push origin "${name}@${version}"',
-    'git push --force origin "${name}@${version}"',
+test('checkReleaseTagInvariant fails on a force-push or refspec escape hatch', () => {
+  const stepWithForce = RELEASE_TAG_STEP_OK.replace(
+    'git push origin "$TAG"',
+    'git push --force origin "$TAG"',
   );
-  const result = checkTagPushInvariant(stepWithForce);
+  const result = checkReleaseTagInvariant(stepWithForce);
   assert.equal(result.ok, false);
   assert.match(result.reason, /--force|\+refs/);
 });
