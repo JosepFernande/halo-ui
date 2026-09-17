@@ -32,12 +32,22 @@ declare global {
   standalone: true,
   imports: [HaIcon],
   encapsulation: ViewEncapsulation.None,
-  template: `<ha-icon [name]="name" [size]="size" [ariaLabel]="ariaLabel"></ha-icon>`,
+  template: `<ha-icon
+    [name]="name"
+    [size]="size"
+    [ariaLabel]="ariaLabel"
+    [strokeWidth]="strokeWidth"
+    [nonScalingStroke]="nonScalingStroke"
+    [title]="title"
+  ></ha-icon>`,
 })
 class TestHost {
   name: HaIconName = 'check';
   size: HaIconSize = 'md';
   ariaLabel = '';
+  strokeWidth = 2;
+  nonScalingStroke = false;
+  title = '';
 }
 
 describe('HA_ICON_NAMES', () => {
@@ -139,6 +149,48 @@ describe('HaIcon', () => {
     fixture.detectChanges();
 
     expect(hostEl.className).toBe('ha-icon ha-icon--lg');
+  });
+
+  describe('strokeWidth / nonScalingStroke / title', () => {
+    it('defaults to strokeWidth 2', () => {
+      const { fixture, hostEl } = createTestHost();
+      fixture.detectChanges();
+
+      const svg = hostEl.querySelector('svg');
+      expect(svg?.getAttribute('stroke-width')).toBe('2');
+    });
+
+    it('forwards a custom strokeWidth to the rendered svg', () => {
+      const { fixture, host, hostEl } = createTestHost();
+      host.strokeWidth = 1;
+      fixture.detectChanges();
+
+      const svg = hostEl.querySelector('svg');
+      expect(svg?.getAttribute('stroke-width')).toBe('1');
+    });
+
+    it('renders no <title> element when title is empty (default)', () => {
+      const { fixture, hostEl } = createTestHost();
+      fixture.detectChanges();
+
+      expect(hostEl.querySelector('svg > title')).toBeNull();
+    });
+
+    it('renders a <title> element with the given text when title is set', () => {
+      const { fixture, host, hostEl } = createTestHost();
+      host.title = 'Success';
+      fixture.detectChanges();
+
+      expect(hostEl.querySelector('svg > title')?.textContent).toBe('Success');
+    });
+
+    it('accepts nonScalingStroke without throwing and keeps rendering the icon', () => {
+      const { fixture, host, hostEl } = createTestHost();
+      host.nonScalingStroke = true;
+      fixture.detectChanges();
+
+      expect(hostEl.querySelector('svg path')).toBeTruthy();
+    });
   });
 
   describe('accessibility', () => {

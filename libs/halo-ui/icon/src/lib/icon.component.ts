@@ -2,6 +2,7 @@ import {
   Component,
   ChangeDetectionStrategy,
   ViewEncapsulation,
+  booleanAttribute,
   computed,
   input,
 } from '@angular/core';
@@ -53,6 +54,26 @@ export class HaIcon {
   /** Accessible label. Empty (default) renders the icon as decorative. */
   readonly ariaLabel = input<string>('');
 
+  /**
+   * Stroke width, forwarded as-is to the underlying Lucide icon. Same
+   * default (`2`) as `@lucide/angular`'s own `strokeWidth` input.
+   */
+  readonly strokeWidth = input<number>(2);
+
+  /**
+   * Keeps the stroke width visually constant regardless of `size` (Lucide's
+   * `nonScalingStroke`). `false` (default) lets the stroke scale with size,
+   * same as `@lucide/angular`'s own default.
+   */
+  readonly nonScalingStroke = input(false, { transform: booleanAttribute });
+
+  /**
+   * Optional accessible title, forwarded to Lucide's own `title` input: adds
+   * a native `<title>` SVG element when set. Independent of `ariaLabel` —
+   * both may be used together.
+   */
+  readonly title = input<string>('');
+
   /** Computed: the Lucide icon component resolved from `name`. */
   protected readonly resolvedIcon = computed(() => HA_ICON_REGISTRY[this.name()]);
 
@@ -60,7 +81,12 @@ export class HaIcon {
   protected readonly sizePx = computed(() => HA_ICON_SIZE_PX[this.size()]);
 
   /** Computed: inputs forwarded to the dynamically rendered Lucide icon component. */
-  protected readonly iconInputs = computed(() => ({ size: this.sizePx() }));
+  protected readonly iconInputs = computed(() => ({
+    size: this.sizePx(),
+    strokeWidth: this.strokeWidth(),
+    nonScalingStroke: this.nonScalingStroke(),
+    title: this.title() || null,
+  }));
 
   /** Computed: BEM class string for the host element. */
   protected readonly hostClasses = computed(() => ['ha-icon', `ha-icon--${this.size()}`].join(' '));

@@ -55,7 +55,7 @@ export class IconPageComponent {
     px: HA_ICON_SIZE_SCALE[size],
   }));
 
-  /** The real 3-input `HaIcon` API surface — no more, no less. There is no `color` input: color is 100% inherited via `currentColor`. */
+  /** The real 6-input `HaIcon` API surface — no more, no less. There is no `color` input: color is 100% inherited via `currentColor`. */
   protected readonly apiInputs: readonly ApiInput[] = [
     {
       name: 'name',
@@ -76,6 +76,27 @@ export class IconPageComponent {
       description:
         'Vacío (default): ícono decorativo (`aria-hidden="true"`, sin `role`). Con valor: `role="img"` + `aria-label`.',
     },
+    {
+      name: 'strokeWidth',
+      type: 'number',
+      default: '2',
+      description:
+        'Grosor del trazo, reenviado tal cual al ícono de Lucide subyacente (mismo default que Lucide).',
+    },
+    {
+      name: 'nonScalingStroke',
+      type: 'boolean',
+      default: 'false',
+      description:
+        'Mantiene el grosor del trazo constante sin importar el `size` (equivalente al `nonScalingStroke` de Lucide).',
+    },
+    {
+      name: 'title',
+      type: 'string',
+      default: `''`,
+      description:
+        'Agrega un `<title>` SVG accesible. Independiente de `ariaLabel` — pueden usarse juntos.',
+    },
   ];
 
   /** Full sorted list of real icon names — source of truth for the gallery below. */
@@ -87,12 +108,37 @@ export class IconPageComponent {
     this.allIconNames[0] ?? ('arrow-right' as HaIconName),
   );
   protected readonly selectedSize = signal<HaIconSize>('md');
+  protected readonly selectedStrokeWidth = signal(2);
+  protected readonly selectedNonScalingStroke = signal(false);
+  protected readonly selectedTitle = signal('');
   protected readonly activeTab = signal<'preview' | 'code'>('preview');
 
   /** Real `<ha-icon>` markup reflecting the playground's current selections. */
-  protected readonly generatedCode = computed(
-    () => `<ha-icon name="${this.selectedIcon()}" size="${this.selectedSize()}" />`,
-  );
+  protected readonly generatedCode = computed(() => {
+    const attrs = [`name="${this.selectedIcon()}"`, `size="${this.selectedSize()}"`];
+    if (this.selectedStrokeWidth() !== 2) {
+      attrs.push(`[strokeWidth]="${this.selectedStrokeWidth()}"`);
+    }
+    if (this.selectedNonScalingStroke()) {
+      attrs.push('[nonScalingStroke]="true"');
+    }
+    if (this.selectedTitle()) {
+      attrs.push(`title="${this.selectedTitle()}"`);
+    }
+    return `<ha-icon ${attrs.join(' ')} />`;
+  });
+
+  protected onStrokeWidthInput(event: Event): void {
+    this.selectedStrokeWidth.set(Number((event.target as HTMLInputElement).value));
+  }
+
+  protected onTitleInput(event: Event): void {
+    this.selectedTitle.set((event.target as HTMLInputElement).value);
+  }
+
+  protected onNonScalingStrokeToggle(event: Event): void {
+    this.selectedNonScalingStroke.set((event.target as HTMLInputElement).checked);
+  }
 
   // --- Icon Gallery state (Section 2) ---
 

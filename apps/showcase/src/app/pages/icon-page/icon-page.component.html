@@ -12,10 +12,12 @@
   <p class="max-w-3xl text-[15px] font-normal leading-relaxed text-zinc-600 sm:text-base">
     Envoltorio token-driven sobre Lucide: un ícono por
     <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">name</code>
-    (slug kebab-case curado, no un import de ícono suelto), tres tamaños reales y color 100% heredado vía
-    <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">currentColor</code> — sin
-    <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">color</code> ni
-    <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">strokeWidth</code> propios.
+    (slug kebab-case curado, no un import de ícono suelto), tres tamaños reales,
+    <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">strokeWidth</code> y
+    <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">nonScalingStroke</code> configurables, y
+    color 100% heredado vía
+    <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">currentColor</code> — sin input
+    <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">color</code> propio.
   </p>
   <div class="mt-4 flex items-center gap-5 text-sm">
     <a href="#playground" class="inline-flex items-center gap-1.5 font-semibold text-brand-700 hover:text-brand-500">
@@ -75,7 +77,13 @@
       <div class="p-8">
         @if (activeTab() === 'preview') {
           <div class="flex min-h-32 flex-col items-center justify-center gap-3 rounded-xl bg-surface-base">
-            <ha-icon [name]="selectedIcon()" [size]="selectedSize()" />
+            <ha-icon
+              [name]="selectedIcon()"
+              [size]="selectedSize()"
+              [strokeWidth]="selectedStrokeWidth()"
+              [nonScalingStroke]="selectedNonScalingStroke()"
+              [title]="selectedTitle()"
+            />
             <span class="font-mono text-xs font-semibold text-zinc-600">{{ selectedIcon() }}</span>
           </div>
         } @else {
@@ -109,6 +117,47 @@
             </button>
           }
         </div>
+      </div>
+
+      <div>
+        <label
+          class="mb-2 flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-zinc-500"
+        >
+          <span>strokeWidth</span>
+          <span class="font-mono normal-case text-zinc-600">{{ selectedStrokeWidth() }}</span>
+        </label>
+        <input
+          type="range"
+          min="0.5"
+          max="4"
+          step="0.5"
+          [value]="selectedStrokeWidth()"
+          (input)="onStrokeWidthInput($event)"
+          class="w-full accent-brand-700"
+        />
+      </div>
+
+      <div>
+        <label class="flex items-center gap-2 text-xs font-medium text-zinc-700">
+          <input
+            type="checkbox"
+            [checked]="selectedNonScalingStroke()"
+            (change)="onNonScalingStrokeToggle($event)"
+            class="h-4 w-4 rounded border-surface-border text-brand-700 focus:ring-brand-700/30"
+          />
+          nonScalingStroke
+        </label>
+      </div>
+
+      <div>
+        <span class="mb-2 block text-[11px] font-bold uppercase tracking-wider text-zinc-500">title (opcional)</span>
+        <input
+          type="text"
+          [value]="selectedTitle()"
+          (input)="onTitleInput($event)"
+          placeholder="Sin título"
+          class="w-full rounded-xl border border-surface-border bg-white px-3 py-1.5 text-xs text-zinc-800 placeholder:text-zinc-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-700/20"
+        />
       </div>
 
       <p class="border-t border-surface-border pt-4 text-[11px] leading-relaxed text-zinc-500">
