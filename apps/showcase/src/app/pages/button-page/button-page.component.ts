@@ -8,6 +8,8 @@ import {
 import { RouterLink } from '@angular/router';
 import { HaButton } from '@halolib-ui/angular/button';
 import type { HaButtonSize, HaButtonVariant } from '@halolib-ui/angular/button';
+import { HaBreadcrumb } from '@halolib-ui/angular/breadcrumb';
+import type { HaBreadcrumbItem } from '@halolib-ui/angular/breadcrumb';
 import { HA_BUTTON_DIMENSIONS } from '@halolib-ui/angular/core';
 import { CodeBlockComponent } from '../../shared/code-block/code-block.component';
 
@@ -43,13 +45,19 @@ interface ApiInput {
 @Component({
   selector: 'app-button-page',
   standalone: true,
-  imports: [RouterLink, HaButton, CodeBlockComponent],
+  imports: [RouterLink, HaButton, HaBreadcrumb, CodeBlockComponent],
   templateUrl: './button-page.component.html',
   styleUrl: './button-page.component.css',
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ButtonPageComponent {
+  protected readonly breadcrumbItems: HaBreadcrumbItem[] = [
+    { label: 'Documentación', link: '/instalacion' },
+    { label: 'Componentes', link: '/componentes/boton' },
+    { label: 'Botón' },
+  ];
+
   protected readonly variants: readonly HaButtonVariant[] = ['solid', 'outline', 'ghost'];
   protected readonly sizes: readonly HaButtonSize[] = ['sm', 'md', 'lg'];
   protected readonly colors: readonly string[] = ['primary', 'success', 'error'];

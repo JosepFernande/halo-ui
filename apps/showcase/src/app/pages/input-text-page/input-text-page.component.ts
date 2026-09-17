@@ -9,6 +9,8 @@ import { RouterLink } from '@angular/router';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HaInputText } from '@halolib-ui/angular/input-text';
 import type { HaInputTextSize } from '@halolib-ui/angular/input-text';
+import { HaBreadcrumb } from '@halolib-ui/angular/breadcrumb';
+import type { HaBreadcrumbItem } from '@halolib-ui/angular/breadcrumb';
 import { CodeBlockComponent } from '../../shared/code-block/code-block.component';
 
 /** One row of the real `HaInputText` Inputs API reference table. */
@@ -27,13 +29,19 @@ interface ApiInput {
 @Component({
   selector: 'app-input-text-page',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, HaInputText, CodeBlockComponent],
+  imports: [RouterLink, ReactiveFormsModule, HaInputText, HaBreadcrumb, CodeBlockComponent],
   templateUrl: './input-text-page.component.html',
   styleUrl: './input-text-page.component.css',
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InputTextPageComponent {
+  protected readonly breadcrumbItems: HaBreadcrumbItem[] = [
+    { label: 'Documentación', link: '/instalacion' },
+    { label: 'Componentes', link: '/componentes/boton' },
+    { label: 'InputText' },
+  ];
+
   protected readonly sizes: readonly HaInputTextSize[] = ['sm', 'md', 'lg'];
 
   /** The real 6-input `HaInputText` API surface — no more, no less. */

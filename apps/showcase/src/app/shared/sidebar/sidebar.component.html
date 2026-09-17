@@ -165,6 +165,20 @@
               <span>Select</span>
               <span class="h-1.5 w-1.5 rounded-full" [class]="selectLink.isActive ? 'bg-green-700' : ''"></span>
             </a>
+            <a
+              routerLink="/componentes/breadcrumb"
+              routerLinkActive
+              #breadcrumbLink="routerLinkActive"
+              class="flex items-center justify-between rounded-md px-2 py-1 text-[11px] font-medium transition-colors"
+              [class]="
+                breadcrumbLink.isActive
+                  ? 'bg-surface-base font-bold text-brand-700'
+                  : 'text-zinc-500 hover:bg-surface-base hover:text-brand-700'
+              "
+            >
+              <span>Breadcrumb</span>
+              <span class="h-1.5 w-1.5 rounded-full" [class]="breadcrumbLink.isActive ? 'bg-green-700' : ''"></span>
+            </a>
           </div>
         </div>
 

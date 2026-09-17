@@ -10,6 +10,8 @@ import {
 import { RouterLink } from '@angular/router';
 import { HA_ICON_NAMES, HaIcon } from '@halolib-ui/angular/icon';
 import type { HaIconName, HaIconSize } from '@halolib-ui/angular/icon';
+import { HaBreadcrumb } from '@halolib-ui/angular/breadcrumb';
+import type { HaBreadcrumbItem } from '@halolib-ui/angular/breadcrumb';
 import { HA_ICON_SIZE_SCALE } from '@halolib-ui/angular/core';
 import { CodeBlockComponent } from '../../shared/code-block/code-block.component';
 
@@ -31,7 +33,7 @@ interface ApiInput {
 @Component({
   selector: 'app-icon-page',
   standalone: true,
-  imports: [RouterLink, HaIcon, CodeBlockComponent],
+  imports: [RouterLink, HaIcon, HaBreadcrumb, CodeBlockComponent],
   templateUrl: './icon-page.component.html',
   styleUrl: './icon-page.component.css',
   encapsulation: ViewEncapsulation.None,
@@ -39,6 +41,12 @@ interface ApiInput {
 })
 export class IconPageComponent {
   private readonly destroyRef = inject(DestroyRef);
+
+  protected readonly breadcrumbItems: HaBreadcrumbItem[] = [
+    { label: 'Documentación', link: '/instalacion' },
+    { label: 'Componentes', link: '/componentes/boton' },
+    { label: 'Iconos' },
+  ];
 
   protected readonly sizes: readonly HaIconSize[] = ['sm', 'md', 'lg'];
 

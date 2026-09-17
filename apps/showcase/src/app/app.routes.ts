@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { BreadcrumbPageComponent } from './pages/breadcrumb-page/breadcrumb-page.component';
 import { ButtonPageComponent } from './pages/button-page/button-page.component';
 import { HomePageComponent } from './pages/home-page/home-page.component';
 import { IconPageComponent } from './pages/icon-page/icon-page.component';
@@ -20,6 +21,7 @@ export const routes: Routes = [
       { path: 'componentes/input-text', component: InputTextPageComponent },
       { path: 'componentes/select', component: SelectPageComponent },
       { path: 'componentes/iconos', component: IconPageComponent },
+      { path: 'componentes/breadcrumb', component: BreadcrumbPageComponent },
     ],
   },
 ];
