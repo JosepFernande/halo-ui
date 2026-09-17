@@ -9,6 +9,8 @@ import { RouterLink } from '@angular/router';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HaSelect } from '@halolib-ui/angular/select';
 import type { HaSelectOption, HaSelectSize } from '@halolib-ui/angular/select';
+import { HaBreadcrumb } from '@halolib-ui/angular/breadcrumb';
+import type { HaBreadcrumbItem } from '@halolib-ui/angular/breadcrumb';
 import { CodeBlockComponent } from '../../shared/code-block/code-block.component';
 
 /** One row of the real `HaSelect` Inputs API reference table. */
@@ -35,13 +37,19 @@ interface ApiOutput {
 @Component({
   selector: 'app-select-page',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, HaSelect, CodeBlockComponent],
+  imports: [RouterLink, ReactiveFormsModule, HaSelect, HaBreadcrumb, CodeBlockComponent],
   templateUrl: './select-page.component.html',
   styleUrl: './select-page.component.css',
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SelectPageComponent {
+  protected readonly breadcrumbItems: HaBreadcrumbItem[] = [
+    { label: 'Documentación', link: '/instalacion' },
+    { label: 'Componentes', link: '/componentes/boton' },
+    { label: 'Select' },
+  ];
+
   protected readonly sizes: readonly HaSelectSize[] = ['sm', 'md', 'lg'];
 
   /** Real demo option list — Cherry ships disabled on purpose, demoing a disabled option for free. */

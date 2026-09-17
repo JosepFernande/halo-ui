@@ -31,6 +31,7 @@
 import { HA_BUTTON_TOKEN_DEFAULT_VALUES } from '../components/button/button-default-values.tokens';
 import { HA_INPUT_TOKEN_DEFAULT_VALUES } from '../components/input-text/input-text-default-values.tokens';
 import { HA_SELECT_TOKEN_DEFAULT_VALUES } from '../components/select/select-default-values.tokens';
+import { HA_BREADCRUMB_TOKEN_DEFAULT_VALUES } from '../components/breadcrumb/breadcrumb-default-values.tokens';
 import {
   HA_FONT_FAMILY,
   HA_FONT_WEIGHT_SCALE,
@@ -47,7 +48,12 @@ import type {
   HaSizeScale,
   HaTypographyScale,
 } from '../foundation/foundation.types';
-import type { HaButtonTokens, HaInputTextTokens, HaSelectTokens } from './component-token-shapes';
+import type {
+  HaBreadcrumbTokens,
+  HaButtonTokens,
+  HaInputTextTokens,
+  HaSelectTokens,
+} from './component-token-shapes';
 import { DEFAULT_THEME } from './theme.tokens';
 import type { HaColorValue } from './theme.tokens';
 
@@ -68,6 +74,7 @@ export interface HaDefaultTheme {
     readonly button: HaButtonTokens;
     readonly inputText: HaInputTextTokens;
     readonly select: HaSelectTokens;
+    readonly breadcrumb: HaBreadcrumbTokens;
   };
 }
 
@@ -87,5 +94,6 @@ export const HA_DEFAULT_THEME = {
     button: HA_BUTTON_TOKEN_DEFAULT_VALUES,
     inputText: HA_INPUT_TOKEN_DEFAULT_VALUES,
     select: HA_SELECT_TOKEN_DEFAULT_VALUES,
+    breadcrumb: HA_BREADCRUMB_TOKEN_DEFAULT_VALUES,
   },
 } as const satisfies HaDefaultTheme;

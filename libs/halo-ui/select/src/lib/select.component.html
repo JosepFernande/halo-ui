@@ -18,6 +18,7 @@
   (blur)="onTriggerBlur()"
 >
   <span class="ha-select__label" [class.ha-select__label--placeholder]="!selectedOption()">{{ triggerLabel() }}</span>
+  <ha-icon name="chevron-down" size="sm" class="ha-select__chevron" [class.ha-select__chevron--open]="panelOpen()" />
 </button>
 
 <ng-template

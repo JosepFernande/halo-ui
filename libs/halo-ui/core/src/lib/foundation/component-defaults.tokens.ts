@@ -17,6 +17,7 @@
  */
 import { flattenComponentTokenTree } from '../theme/component-overrides';
 import {
+  HA_BREADCRUMB_TOKENS,
   HA_BUTTON_TOKENS,
   HA_INPUT_TEXT_TOKENS,
   HA_SELECT_TOKENS,
@@ -25,12 +26,14 @@ import type { ThemeCssVariables } from '../theme/theme.tokens';
 import { HA_BUTTON_TOKEN_DEFAULT_VALUES } from '../components/button/button-default-values.tokens';
 import { HA_INPUT_TOKEN_DEFAULT_VALUES } from '../components/input-text/input-text-default-values.tokens';
 import { HA_SELECT_TOKEN_DEFAULT_VALUES } from '../components/select/select-default-values.tokens';
+import { HA_BREADCRUMB_TOKEN_DEFAULT_VALUES } from '../components/breadcrumb/breadcrumb-default-values.tokens';
 
 function buildComponentTokenDefaults(): ThemeCssVariables {
   const result: ThemeCssVariables = {};
   flattenComponentTokenTree(HA_BUTTON_TOKEN_DEFAULT_VALUES, HA_BUTTON_TOKENS, result);
   flattenComponentTokenTree(HA_INPUT_TOKEN_DEFAULT_VALUES, HA_INPUT_TEXT_TOKENS, result);
   flattenComponentTokenTree(HA_SELECT_TOKEN_DEFAULT_VALUES, HA_SELECT_TOKENS, result);
+  flattenComponentTokenTree(HA_BREADCRUMB_TOKEN_DEFAULT_VALUES, HA_BREADCRUMB_TOKENS, result);
   return result;
 }
 

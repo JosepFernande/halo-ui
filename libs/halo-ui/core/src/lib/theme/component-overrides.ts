@@ -19,7 +19,12 @@
  * string (e.g. `'var(--ha-primary)'`, `'#00897b'`, `'1px solid red'`), never
  * a semantic color routed through hex/HSL derivation.
  */
-import { HA_BUTTON_TOKENS, HA_INPUT_TEXT_TOKENS, HA_SELECT_TOKENS } from './component-token-shapes';
+import {
+  HA_BREADCRUMB_TOKENS,
+  HA_BUTTON_TOKENS,
+  HA_INPUT_TEXT_TOKENS,
+  HA_SELECT_TOKENS,
+} from './component-token-shapes';
 import { HA_DEFAULT_THEME } from './default-theme';
 import type { HaComponentsThemeInput, ThemeCssVariables } from './theme.tokens';
 
@@ -87,6 +92,7 @@ export function toComponentCssVariables(
   flattenComponentTokenTree(defaults.button, HA_BUTTON_TOKENS, result);
   flattenComponentTokenTree(defaults.inputText, HA_INPUT_TEXT_TOKENS, result);
   flattenComponentTokenTree(defaults.select, HA_SELECT_TOKENS, result);
+  flattenComponentTokenTree(defaults.breadcrumb, HA_BREADCRUMB_TOKENS, result);
 
   if (!input) {
     return result;
@@ -100,6 +106,9 @@ export function toComponentCssVariables(
   }
   if (isPlainObject(input.select)) {
     flattenComponentTokenTree(input.select, HA_SELECT_TOKENS, result);
+  }
+  if (isPlainObject(input.breadcrumb)) {
+    flattenComponentTokenTree(input.breadcrumb, HA_BREADCRUMB_TOKENS, result);
   }
 
   return result;

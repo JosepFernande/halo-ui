@@ -1,0 +1,93 @@
+<ng-template #itemContent let-item>
+  @if (item.icon) {
+    <ha-icon [name]="item.icon" size="sm" />
+  }
+  {{ item.label }}
+</ng-template>
+
+<nav aria-label="breadcrumb">
+  <ol class="ha-breadcrumb__list">
+    @if (!isCollapsed()) {
+      @for (item of items(); track item.label; let last = $last) {
+        <li class="ha-breadcrumb__item">
+          @if (!last && item.link) {
+            <a class="ha-breadcrumb__link" [routerLink]="item.link">
+              <ng-container [ngTemplateOutlet]="itemContent" [ngTemplateOutletContext]="{ $implicit: item }" />
+            </a>
+          } @else {
+            <span class="ha-breadcrumb__current" [attr.aria-current]="last ? 'page' : null">
+              <ng-container [ngTemplateOutlet]="itemContent" [ngTemplateOutletContext]="{ $implicit: item }" />
+            </span>
+          }
+          @if (!last) {
+            <span class="ha-breadcrumb__separator" aria-hidden="true">{{ separator() }}</span>
+          }
+        </li>
+      }
+    } @else {
+      @for (item of visibleLeadingItems(); track item.label) {
+        <li class="ha-breadcrumb__item">
+          @if (item.link) {
+            <a class="ha-breadcrumb__link" [routerLink]="item.link">
+              <ng-container [ngTemplateOutlet]="itemContent" [ngTemplateOutletContext]="{ $implicit: item }" />
+            </a>
+          } @else {
+            <span class="ha-breadcrumb__current">
+              <ng-container [ngTemplateOutlet]="itemContent" [ngTemplateOutletContext]="{ $implicit: item }" />
+            </span>
+          }
+          <span class="ha-breadcrumb__separator" aria-hidden="true">{{ separator() }}</span>
+        </li>
+      }
+
+      <li class="ha-breadcrumb__item">
+        <button
+          #ellipsisTrigger
+          type="button"
+          class="ha-breadcrumb__ellipsis"
+          aria-haspopup="true"
+          [attr.aria-expanded]="panelOpen() ? 'true' : 'false'"
+          aria-label="Show intermediate items"
+          (click)="toggle()"
+          (keydown)="onEllipsisKeydown($event)"
+        >
+          <ha-icon name="ellipsis" size="sm" />
+        </button>
+
+        <ng-template
+          cdkConnectedOverlay
+          [cdkConnectedOverlayOrigin]="ellipsisTriggerRef()!"
+          [cdkConnectedOverlayOpen]="panelOpen()"
+          [cdkConnectedOverlayPositions]="positions"
+          [cdkConnectedOverlayViewportMargin]="viewportMargin"
+          [cdkConnectedOverlayScrollStrategy]="scrollStrategy"
+          (overlayOutsideClick)="close()"
+        >
+          <ul class="ha-breadcrumb__overlay-list {{ hostClasses() }}">
+            @for (item of collapsedItems(); track item.label) {
+              <li class="ha-breadcrumb__overlay-item">
+                @if (item.link) {
+                  <a class="ha-breadcrumb__link" [routerLink]="item.link" (click)="close()">
+                    <ng-container [ngTemplateOutlet]="itemContent" [ngTemplateOutletContext]="{ $implicit: item }" />
+                  </a>
+                } @else {
+                  <span class="ha-breadcrumb__current">
+                    <ng-container [ngTemplateOutlet]="itemContent" [ngTemplateOutletContext]="{ $implicit: item }" />
+                  </span>
+                }
+              </li>
+            }
+          </ul>
+        </ng-template>
+
+        <span class="ha-breadcrumb__separator" aria-hidden="true">{{ separator() }}</span>
+      </li>
+
+      <li class="ha-breadcrumb__item">
+        <span class="ha-breadcrumb__current" aria-current="page">
+          <ng-container [ngTemplateOutlet]="itemContent" [ngTemplateOutletContext]="{ $implicit: lastItem() }" />
+        </span>
+      </li>
+    }
+  </ol>
+</nav>

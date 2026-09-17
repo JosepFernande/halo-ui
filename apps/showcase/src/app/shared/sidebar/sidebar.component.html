@@ -1,5 +1,6 @@
 <div
-  class="app-sidebar h-full flex w-70 flex-1 flex-col gap-6 overflow-hidden rounded-tr-3xl rounded-br-3xl border border-surface-border bg-surface-card p-5 shadow-soft-airy"
+  class="app-sidebar fixed inset-y-0 left-0 z-50 flex h-full w-70 max-w-[80vw] flex-col gap-6 overflow-hidden rounded-tr-3xl rounded-br-3xl border border-surface-border bg-surface-card p-5 shadow-soft-airy transition-transform duration-300 ease-in-out md:static md:z-auto md:w-70 md:max-w-none md:flex-1 md:translate-x-0"
+  [class]="open() ? 'translate-x-0' : '-translate-x-full'"
 >
   <div class="flex items-center gap-2.5 border-b border-surface-border/70 pb-4">
     <span
@@ -24,7 +25,7 @@
   </div>
 
   <div class="app-sidebar__nav-scroll min-h-0 flex-1 overflow-y-auto">
-    <nav class="flex flex-col gap-6">
+    <nav class="flex flex-col gap-6" (click)="onNavClick($event)">
       <div class="flex flex-col gap-2">
         <div
           class="flex items-center justify-between px-2 text-[11px] font-bold uppercase tracking-wider text-zinc-500"
@@ -91,13 +92,12 @@
       <div class="flex flex-col gap-2">
         <div class="px-2 text-[11px] font-bold uppercase tracking-wider text-zinc-500">Recursos</div>
         <div routerLinkActive #componentesGroup="routerLinkActive" class="contents">
-          <a
-            routerLink="/componentes/boton"
+          <div
             class="flex items-center justify-between gap-2.5 rounded-xl border px-3 py-2 text-xs font-semibold transition-all"
             [class]="
               componentesGroup.isActive
                 ? 'border-brand-700/20 bg-brand-700/10 text-brand-700'
-                : 'border-transparent text-zinc-700 hover:bg-surface-base'
+                : 'border-transparent text-zinc-700'
             "
           >
             <span class="flex items-center gap-2.5">
@@ -119,7 +119,7 @@
             @if (componentesGroup.isActive) {
               <span class="h-1.5 w-1.5 rounded-full bg-brand-700"></span>
             }
-          </a>
+          </div>
 
           <div class="ml-5 mt-1.5 flex flex-col gap-1 border-l-2 border-surface-border pl-3">
             <a
@@ -164,11 +164,25 @@
               <span>Select</span>
               <span class="h-1.5 w-1.5 rounded-full" [class]="selectLink.isActive ? 'bg-green-700' : ''"></span>
             </a>
+            <a
+              routerLink="/componentes/breadcrumb"
+              routerLinkActive
+              #breadcrumbLink="routerLinkActive"
+              class="flex items-center justify-between rounded-md px-2 py-1 text-[11px] font-medium transition-colors"
+              [class]="
+                breadcrumbLink.isActive
+                  ? 'bg-surface-base font-bold text-brand-700'
+                  : 'text-zinc-500 hover:bg-surface-base hover:text-brand-700'
+              "
+            >
+              <span>Breadcrumb</span>
+              <span class="h-1.5 w-1.5 rounded-full" [class]="breadcrumbLink.isActive ? 'bg-green-700' : ''"></span>
+            </a>
           </div>
         </div>
 
         <a
-          routerLink="/componentes/iconos"
+          routerLink="/iconos"
           routerLinkActive
           #iconosLink="routerLinkActive"
           class="flex items-center justify-between gap-2.5 rounded-xl border px-3 py-2 text-xs font-semibold transition-all"

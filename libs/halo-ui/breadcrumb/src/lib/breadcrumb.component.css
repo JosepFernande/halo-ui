@@ -1,0 +1,148 @@
+/*
+ * HaBreadcrumb — BEM CSS classes
+ * Every value comes from a --ha-* custom property. Zero hardcoded colors, spacing, or radii.
+ *
+ * Token mapping:
+ *   --ha-breadcrumb-font-family      → font-family
+ *   --ha-breadcrumb-font-weight      → font-weight
+ *   --ha-breadcrumb-line-height      → line-height
+ *   --ha-breadcrumb-font-sm/md/lg    → font-size (sm/md/lg)
+ *   --ha-breadcrumb-gap-sm/md/lg     → gap between items (sm/md/lg)
+ *   --ha-breadcrumb-link-color       → link text color
+ *   --ha-breadcrumb-link-hover-color → link text color on hover (and the ellipsis trigger's hover color)
+ *   --ha-breadcrumb-current-color    → current (last) item text color
+ *   --ha-breadcrumb-separator-color  → separator color (and the ellipsis trigger's default color)
+ *   --ha-breadcrumb-focus-ring       → outline for keyboard focus
+ *   --ha-breadcrumb-focus-ring-offset → outline-offset for keyboard focus
+ *   --ha-gap-sm                      → gap between an item's icon and its label (semantic passthrough, not component-scoped)
+ *   --ha-breadcrumb-overlay-bg              → collapsed-items popover background
+ *   --ha-breadcrumb-overlay-border           → collapsed-items popover border
+ *   --ha-breadcrumb-overlay-radius           → collapsed-items popover corner radius
+ *   --ha-breadcrumb-overlay-shadow           → collapsed-items popover box-shadow
+ *   --ha-breadcrumb-overlay-padding-y        → collapsed-items popover vertical padding
+ *   --ha-breadcrumb-overlay-offset           → gap between the "…" trigger and the popover
+ */
+
+.ha-breadcrumb {
+  display: block;
+  font-family: var(--ha-breadcrumb-font-family);
+  font-weight: var(--ha-breadcrumb-font-weight);
+  line-height: var(--ha-breadcrumb-line-height);
+}
+
+.ha-breadcrumb__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ha-breadcrumb__item {
+  display: inline-flex;
+  align-items: center;
+}
+
+.ha-breadcrumb__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ha-gap-sm);
+  color: var(--ha-breadcrumb-link-color);
+  text-decoration: none;
+}
+
+.ha-breadcrumb__link:hover {
+  color: var(--ha-breadcrumb-link-hover-color);
+  text-decoration: underline;
+}
+
+.ha-breadcrumb__link:focus-visible {
+  outline: var(--ha-breadcrumb-focus-ring);
+  outline-offset: var(--ha-breadcrumb-focus-ring-offset);
+}
+
+.ha-breadcrumb__current {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ha-gap-sm);
+  color: var(--ha-breadcrumb-current-color);
+}
+
+.ha-breadcrumb__separator {
+  color: var(--ha-breadcrumb-separator-color);
+}
+
+/* ------------------------------------------------------------------ */
+/* Collapse: "…" trigger + popover                                    */
+/* ------------------------------------------------------------------ */
+
+.ha-breadcrumb__ellipsis {
+  display: inline-flex;
+  align-items: center;
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  color: var(--ha-breadcrumb-separator-color);
+}
+
+.ha-breadcrumb__ellipsis:hover {
+  color: var(--ha-breadcrumb-link-hover-color);
+}
+
+.ha-breadcrumb__ellipsis:focus-visible {
+  outline: var(--ha-breadcrumb-focus-ring);
+  outline-offset: var(--ha-breadcrumb-focus-ring-offset);
+}
+
+.ha-breadcrumb__overlay-list {
+  display: flex;
+  flex-direction: column;
+  margin: var(--ha-breadcrumb-overlay-offset) 0 0;
+  padding: var(--ha-breadcrumb-overlay-padding-y) 0;
+  list-style: none;
+  background: var(--ha-breadcrumb-overlay-bg);
+  border: var(--ha-breadcrumb-overlay-border);
+  border-radius: var(--ha-breadcrumb-overlay-radius);
+  box-shadow: var(--ha-breadcrumb-overlay-shadow);
+}
+
+.ha-breadcrumb__overlay-item {
+  display: flex;
+  padding: var(--ha-gap-sm) var(--ha-breadcrumb-overlay-padding-y);
+}
+
+.ha-breadcrumb__overlay-item .ha-breadcrumb__link,
+.ha-breadcrumb__overlay-item .ha-breadcrumb__current {
+  width: 100%;
+}
+
+/* ------------------------------------------------------------------ */
+/* Sizes                                                               */
+/* ------------------------------------------------------------------ */
+
+.ha-breadcrumb--sm {
+  font-size: var(--ha-breadcrumb-font-sm);
+}
+
+.ha-breadcrumb--sm .ha-breadcrumb__separator {
+  margin: 0 var(--ha-breadcrumb-gap-sm);
+}
+
+.ha-breadcrumb--md {
+  font-size: var(--ha-breadcrumb-font-md);
+}
+
+.ha-breadcrumb--md .ha-breadcrumb__separator {
+  margin: 0 var(--ha-breadcrumb-gap-md);
+}
+
+.ha-breadcrumb--lg {
+  font-size: var(--ha-breadcrumb-font-lg);
+}
+
+.ha-breadcrumb--lg .ha-breadcrumb__separator {
+  margin: 0 var(--ha-breadcrumb-gap-lg);
+}

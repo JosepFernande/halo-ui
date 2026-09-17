@@ -44,3 +44,6 @@ export type { HaInputTextTokens } from '../components/input-text/input-text-toke
 
 export { HA_SELECT_TOKENS } from '../components/select/select-token-shapes';
 export type { HaSelectTokens } from '../components/select/select-token-shapes';
+
+export { HA_BREADCRUMB_TOKENS } from '../components/breadcrumb/breadcrumb-token-shapes';
+export type { HaBreadcrumbTokens } from '../components/breadcrumb/breadcrumb-token-shapes';

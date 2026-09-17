@@ -11,6 +11,7 @@
     "baseUrl": ".",
     "paths": {
       "@halolib-ui/angular": ["./libs/halo-ui/src/index.ts"],
+      "@halolib-ui/angular/breadcrumb": ["libs/halo-ui/breadcrumb/src/index.ts"],
       "@halolib-ui/angular/button": ["libs/halo-ui/button/src/index.ts"],
       "@halolib-ui/angular/core": ["libs/halo-ui/core/src/index.ts"],
       "@halolib-ui/angular/icon": ["libs/halo-ui/icon/src/index.ts"],

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal, ViewEncapsulation } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 
@@ -12,4 +12,15 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DocsLayoutComponent {}
+export class DocsLayoutComponent {
+  /** Whether the mobile drawer sidebar is open. Ignored at/above the `md` breakpoint, where the sidebar is always visible. */
+  protected readonly sidebarOpen = signal(false);
+
+  protected toggleSidebar(): void {
+    this.sidebarOpen.update((open) => !open);
+  }
+
+  protected closeSidebar(): void {
+    this.sidebarOpen.set(false);
+  }
+}
