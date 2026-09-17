@@ -20,7 +20,7 @@ export const routes: Routes = [
       { path: 'componentes/boton', component: ButtonPageComponent },
       { path: 'componentes/input-text', component: InputTextPageComponent },
       { path: 'componentes/select', component: SelectPageComponent },
-      { path: 'componentes/iconos', component: IconPageComponent },
+      { path: 'iconos', component: IconPageComponent },
       { path: 'componentes/breadcrumb', component: BreadcrumbPageComponent },
     ],
   },

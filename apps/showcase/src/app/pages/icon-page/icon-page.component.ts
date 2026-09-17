@@ -44,7 +44,6 @@ export class IconPageComponent {
 
   protected readonly breadcrumbItems: HaBreadcrumbItem[] = [
     { label: 'Documentación', link: '/instalacion' },
-    { label: 'Componentes', link: '/componentes/boton' },
     { label: 'Iconos' },
   ];
 

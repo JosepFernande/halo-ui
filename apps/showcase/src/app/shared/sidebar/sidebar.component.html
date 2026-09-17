@@ -92,13 +92,12 @@
       <div class="flex flex-col gap-2">
         <div class="px-2 text-[11px] font-bold uppercase tracking-wider text-zinc-500">Recursos</div>
         <div routerLinkActive #componentesGroup="routerLinkActive" class="contents">
-          <a
-            routerLink="/componentes/boton"
+          <div
             class="flex items-center justify-between gap-2.5 rounded-xl border px-3 py-2 text-xs font-semibold transition-all"
             [class]="
               componentesGroup.isActive
                 ? 'border-brand-700/20 bg-brand-700/10 text-brand-700'
-                : 'border-transparent text-zinc-700 hover:bg-surface-base'
+                : 'border-transparent text-zinc-700'
             "
           >
             <span class="flex items-center gap-2.5">
@@ -120,7 +119,7 @@
             @if (componentesGroup.isActive) {
               <span class="h-1.5 w-1.5 rounded-full bg-brand-700"></span>
             }
-          </a>
+          </div>
 
           <div class="ml-5 mt-1.5 flex flex-col gap-1 border-l-2 border-surface-border pl-3">
             <a
@@ -183,7 +182,7 @@
         </div>
 
         <a
-          routerLink="/componentes/iconos"
+          routerLink="/iconos"
           routerLinkActive
           #iconosLink="routerLinkActive"
           class="flex items-center justify-between gap-2.5 rounded-xl border px-3 py-2 text-xs font-semibold transition-all"

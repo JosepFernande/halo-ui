@@ -79,7 +79,7 @@ export class BreadcrumbPageComponent {
     { label: 'Documentación', link: '/instalacion' },
     { label: 'Componentes', link: '/componentes/boton' },
     { label: 'Select', link: '/componentes/select' },
-    { label: 'Iconos', link: '/componentes/iconos' },
+    { label: 'Iconos', link: '/iconos' },
     { label: 'Breadcrumb' },
   ];
 
@@ -89,7 +89,7 @@ export class BreadcrumbPageComponent {
     { label: 'Documentación', link: '/instalacion' },
     { label: 'Componentes', link: '/componentes/boton' },
     { label: 'Select', link: '/componentes/select' },
-    { label: 'Iconos', link: '/componentes/iconos' },
+    { label: 'Iconos', link: '/iconos' },
     { label: 'Breadcrumb' },
   ];
 
