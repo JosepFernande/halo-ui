@@ -26,9 +26,11 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    # Normal runs take 3-5 min; 30 min covers worst case without letting a
+    # Runs with a pending changeset now also wait for the version-packages
+    # PR's own required checks before publishing (observed ~12 min on a real
+    # run) — 45 min covers that plus build/audit/publish without letting a
     # hung npm ci/publish block the release-main concurrency for hours.
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
         with:
@@ -70,13 +72,6 @@ jobs:
           LC_VERSION=$(node -p "require('./package-lock.json').packages['node_modules/lightningcss'].version")
           OXIDE_VERSION=$(node -p "require('./package-lock.json').packages['node_modules/@tailwindcss/oxide'].version")
           npm install --no-save --no-audit --no-fund "lightningcss@${LC_VERSION}" "@tailwindcss/oxide-linux-x64-gnu@${OXIDE_VERSION}"
-
-      - name: Build
-        # Single publishable project post-consolidation (SDD change
-        # consolidate-halo-ui-single-package): only halo-ui needs a
-        # production build for a release; run-many -t build would also
-        # rebuild showcase, which has no release outcome.
-        run: npx nx build halo-ui --configuration=production
 
       - name: Check for changesets
         id: changesets
@@ -137,8 +132,49 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
+      - name: Wait for the version-packages PR to merge
+        if: steps.changesets.outputs.has_changesets == 'true'
+        # `gh pr merge` above authenticates as the default GITHUB_TOKEN, and
+        # GitHub Actions never triggers a new workflow run for a push made by
+        # GITHUB_TOKEN (anti-recursion guard) — so the merge this produces
+        # would never fire a second `release.yml` run to do the actual
+        # publish. Polling here and falling through to this SAME job's
+        # build/audit/validate/publish steps below closes that gap instead —
+        # see issue #160's version-packages PR merging with nothing ever
+        # publishing 19.2.0 as a result. The bumped libs/halo-ui/package.json
+        # is already on disk from `npx changeset version` above; this step is
+        # the integrity gate confirming the PR's own required checks actually
+        # passed before we publish what they gated.
+        run: |
+          pr_number="${{ steps.cpr.outputs.pull-request-number }}"
+          for _ in $(seq 1 80); do
+            state="$(gh pr view "$pr_number" --json state --jq '.state')"
+            if [ "$state" = "MERGED" ]; then
+              echo "PR #$pr_number merged."
+              exit 0
+            fi
+            if [ "$state" = "CLOSED" ]; then
+              echo "::error::PR #$pr_number was closed without merging — aborting release."
+              exit 1
+            fi
+            sleep 15
+          done
+          echo "::error::Timed out waiting for PR #$pr_number to merge."
+          exit 1
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Build
+        # Runs after the version-bump block above (if any) so a pending
+        # changeset's bumped version is what actually gets built — moved
+        # here (was previously the first step) when publish stopped
+        # depending on a second triggered run. Single publishable project
+        # post-consolidation (SDD change consolidate-halo-ui-single-package):
+        # only halo-ui needs a production build for a release; run-many -t
+        # build would also rebuild showcase, which has no release outcome.
+        run: npx nx build halo-ui --configuration=production
+
       - name: Audit production dependencies
-        if: steps.changesets.outputs.has_changesets == 'false'
         # Non-blocking by design: an advisory unrelated to the change being
         # published must not kill the release. The exit code is recorded as a
         # failed step (visible in the run) but never blocks the publish — the
@@ -147,7 +183,6 @@ jobs:
         run: npm audit --omit=dev --audit-level=critical --json > /tmp/npm-audit-report.json
 
       - name: Upload npm audit report
-        if: steps.changesets.outputs.has_changesets == 'false'
         uses: actions/upload-artifact@v4
         with:
           name: npm-audit-report
@@ -155,7 +190,6 @@ jobs:
           if-no-files-found: ignore
 
       - name: Validate packages before publish
-        if: steps.changesets.outputs.has_changesets == 'false'
         # Issue #78: fail the release (never silently PASS) if a publishable
         # package's dist/libs/<lib>/package.json lost its main/exports["."]/
         # typings entry points, or if this workflow stopped publishing from
@@ -165,7 +199,6 @@ jobs:
 
       - name: Publish to npm from dist
         id: publish
-        if: steps.changesets.outputs.has_changesets == 'false'
         run: |
           # Publish the real build output: the installable package (fesm
           # bundles + per-entry-point .d.ts + a generated package.json with
@@ -177,8 +210,8 @@ jobs:
           # there is exactly one publishable package, so this is a single
           # straight-line step — no dependency-ordered loop needed anymore.
           # libs/halo-ui/package.json is used purely as the source of truth
-          # for name + version, already bumped by the prior
-          # `changeset version` run.
+          # for name + version, already bumped in this same job by the
+          # earlier `changeset version` step when a changeset was pending.
           #
           # No --tag is passed: npm tags a first publish `latest` by
           # default. The "Point the alpha dist-tag" step below moves `alpha`
