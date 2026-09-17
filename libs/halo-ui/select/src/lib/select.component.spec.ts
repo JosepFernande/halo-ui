@@ -248,6 +248,16 @@ describe('HaSelect', () => {
 
       expect(document.querySelector('[role="listbox"]')).toBeNull();
     });
+
+    it('should render a chevron-down icon in the trigger', () => {
+      const { fixture, triggerEl } = createTestHost();
+      fixture.detectChanges();
+
+      const icon = fixture.debugElement.query(By.css('ha-icon'));
+      expect(icon).not.toBeNull();
+      expect(icon.componentInstance.name()).toBe('chevron-down');
+      expect(triggerEl.querySelector('ha-icon')).not.toBeNull();
+    });
   });
 
   // -----------------------------------------------------------------------
@@ -280,6 +290,36 @@ describe('HaSelect', () => {
 
       expect(getPanel()).not.toBeNull();
       expect(host.openedCount).toBe(1);
+    });
+
+    it('toggles the chevron rotation class with the panel open state', () => {
+      const { fixture, triggerEl } = createTestHost();
+      fixture.detectChanges();
+      const chevron = triggerEl.querySelector('.ha-select__chevron')!;
+      expect(chevron.classList.contains('ha-select__chevron--open')).toBe(false);
+
+      triggerEl.click();
+      fixture.detectChanges();
+      expect(chevron.classList.contains('ha-select__chevron--open')).toBe(true);
+
+      dispatchKeydown(triggerEl, 'Escape', ESCAPE);
+      fixture.detectChanges();
+      expect(chevron.classList.contains('ha-select__chevron--open')).toBe(false);
+    });
+
+    it('closes the panel and emits closed when the open trigger is clicked again (toggle)', () => {
+      const { fixture, host, triggerEl } = createTestHost();
+      fixture.detectChanges();
+
+      triggerEl.click();
+      fixture.detectChanges();
+      expect(getPanel()).not.toBeNull();
+      expect(host.openedCount).toBe(1);
+
+      triggerEl.click();
+      fixture.detectChanges();
+      expect(getPanel()).toBeNull();
+      expect(host.closedCount).toBe(1);
     });
 
     it('opens the panel when Enter is pressed while closed', () => {

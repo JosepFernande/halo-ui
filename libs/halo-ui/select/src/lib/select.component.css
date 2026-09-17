@@ -15,7 +15,7 @@
  *   --ha-select-color              -> color (text)
  *   --ha-select-bg                 -> background-color
  *   --ha-select-border             -> border shorthand
- *   --ha-select-gap                -> gap between label and (future) icon
+ *   --ha-select-gap                -> gap between label and chevron icon
  *   --ha-select-radius-sm/md/lg    -> border-radius (per size)
  *   --ha-select-padding-sm/md/lg   -> padding (per size)
  *   --ha-select-font-sm/md/lg      -> font-size (per size)
@@ -83,6 +83,15 @@
 
 .ha-select__label--placeholder {
   color: var(--ha-select-placeholder-color);
+}
+
+.ha-select__chevron {
+  flex-shrink: 0;
+  transition: transform var(--ha-select-transition-duration) var(--ha-select-transition-easing);
+}
+
+.ha-select__chevron--open {
+  transform: rotate(180deg);
 }
 
 /* ------------------------------------------------------------------ */
@@ -229,7 +238,8 @@
 /* ------------------------------------------------------------------ */
 
 @media (prefers-reduced-motion: reduce) {
-  .ha-select__trigger {
+  .ha-select__trigger,
+  .ha-select__chevron {
     transition: none;
   }
 }

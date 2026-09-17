@@ -21,6 +21,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
 import { CdkConnectedOverlay } from '@angular/cdk/overlay';
 import { ActiveDescendantKeyManager } from '@angular/cdk/a11y';
+import { HaIcon } from '@halolib-ui/angular/icon';
 import type { HaSelectOption, HaSelectSize } from './select.types';
 import {
   HA_SELECT_POSITIONS,
@@ -36,9 +37,9 @@ import { findOptionIndexByValue, firstEnabledIndex, nextSelectId, optionId } fro
  * Accessible, token-driven single-select combobox (custom element `ha-select`,
  * not an attribute selector) — a `<button role="combobox">` trigger paired
  * with a `CdkConnectedOverlay` panel (`disableClose=true`; Escape is handled
- * by the trigger itself in `onTriggerKeydown`). Opens on click/Enter/Space/
- * ArrowDown, closes on outside click/Escape/blur, without changing the bound
- * value. `aria-expanded` mirrors `panelOpen()`.
+ * by the trigger itself in `onTriggerKeydown`). The trigger toggles the panel
+ * on click (also opens on Enter/Space/ArrowDown); closes on outside click,
+ * Escape, or blur too, without changing the bound value. `aria-expanded` mirrors `panelOpen()`.
  *
  * Keyboard navigation and commit run through an
  * `ActiveDescendantKeyManager<HaSelectOptionItem>` built over the
@@ -57,7 +58,7 @@ import { findOptionIndexByValue, firstEnabledIndex, nextSelectId, optionId } fro
 @Component({
   selector: 'ha-select',
   standalone: true,
-  imports: [CdkConnectedOverlay],
+  imports: [CdkConnectedOverlay, HaIcon],
   templateUrl: './select.component.html',
   styleUrl: './select.component.css',
   encapsulation: ViewEncapsulation.None,
@@ -304,8 +305,9 @@ export class HaSelect implements ControlValueAccessor, OnInit {
     }
   }
 
-  /** Host handler: opens the panel on trigger click (no-op if already open, disabled, or readonly). */
+  /** Host handler: toggles the panel on trigger click (no-op to open when disabled or readonly). */
   protected onTriggerClick(): void {
+    if (this.panelOpen()) return this.close();
     this.open();
   }
 
