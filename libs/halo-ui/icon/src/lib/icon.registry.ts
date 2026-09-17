@@ -29,6 +29,7 @@ import {
   LucideEyeOff,
   LucideCopy,
   LucideExternalLink,
+  LucideEllipsis,
 } from '@lucide/angular';
 
 /**
@@ -80,6 +81,7 @@ export const HA_ICON_REGISTRY = {
   'eye-off': LucideEyeOff,
   copy: LucideCopy,
   'external-link': LucideExternalLink,
+  ellipsis: LucideEllipsis,
 } satisfies Record<string, LucideIcon>;
 
 export type HaIconName = keyof typeof HA_ICON_REGISTRY;

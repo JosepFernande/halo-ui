@@ -46,6 +46,9 @@
     },
     "./icon": {
       "default": "./icon/src/index.ts"
+    },
+    "./breadcrumb": {
+      "default": "./breadcrumb/src/index.ts"
     }
   },
   "peerDependencies": {

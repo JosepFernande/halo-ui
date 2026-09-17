@@ -1,6 +1,11 @@
 import { InjectionToken, makeStateKey } from '@angular/core';
 import { HA_PRIMARY_ANCHOR } from '../foundation/foundation.tokens';
-import type { HaButtonTokens, HaInputTextTokens, HaSelectTokens } from './component-token-shapes';
+import type {
+  HaBreadcrumbTokens,
+  HaButtonTokens,
+  HaInputTextTokens,
+  HaSelectTokens,
+} from './component-token-shapes';
 
 /**
  * Explicit hover/active/contrast overrides for a single bootstrap color
@@ -88,6 +93,7 @@ export interface HaComponentsThemeInput {
   button?: HaDeepPartial<HaButtonTokens>;
   inputText?: HaDeepPartial<HaInputTextTokens>;
   select?: HaDeepPartial<HaSelectTokens>;
+  breadcrumb?: HaDeepPartial<HaBreadcrumbTokens>;
 }
 
 /**

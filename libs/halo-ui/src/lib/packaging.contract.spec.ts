@@ -2,7 +2,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { execSync } from 'node:child_process';
 
-const ENTRY_POINTS = ['core', 'button', 'input-text', 'select'] as const;
+const ENTRY_POINTS = ['core', 'button', 'input-text', 'select', 'breadcrumb'] as const;
 
 function libRoot(): string {
   return path.resolve(__dirname, '../..');
@@ -86,7 +86,7 @@ describe('Packaging contract — source-level', () => {
       expect(peers!['@angular/forms']).toBeDefined();
     });
 
-    it('exports map has root, package.json, and all 4 entry-point subpaths', () => {
+    it('exports map has root, package.json, and all 5 entry-point subpaths', () => {
       const exportsMap = pkg['exports'] as Record<string, unknown> | undefined;
       expect(exportsMap).toBeDefined();
       expect(exportsMap!['.']).toBeDefined();
@@ -98,7 +98,7 @@ describe('Packaging contract — source-level', () => {
   });
 
   describe('src/index.ts primary barrel', () => {
-    it('re-exports all 4 entry-point subpaths via the published package specifier', () => {
+    it('re-exports all 5 entry-point subpaths via the published package specifier', () => {
       const indexPath = path.resolve(libRoot(), 'src', 'index.ts');
       const content = fs.readFileSync(indexPath, 'utf-8');
       for (const entry of ENTRY_POINTS) {
@@ -177,11 +177,12 @@ describe('Packaging contract — source-level', () => {
       expect(paths[`@halolib-ui/angular/${entry}`]).toBeDefined();
     });
 
-    it('declares exactly 6 @halolib-ui/angular* path entries (no legacy 5-package paths)', () => {
+    it('declares exactly 7 @halolib-ui/angular* path entries (no legacy 5-package paths)', () => {
       const halolibKeys = Object.keys(paths).filter((key) => key.startsWith('@halolib-ui/angular'));
       expect(halolibKeys.sort()).toEqual(
         [
           '@halolib-ui/angular',
+          '@halolib-ui/angular/breadcrumb',
           '@halolib-ui/angular/button',
           '@halolib-ui/angular/core',
           '@halolib-ui/angular/icon',
@@ -206,7 +207,7 @@ describe('Packaging contract — dist-level', () => {
   }, 180_000);
 
   describe('dist package.json', () => {
-    it('exports map has root, package.json, and all 4 subpaths', () => {
+    it('exports map has root, package.json, and all 5 subpaths', () => {
       const pkg = readJson(path.resolve(distDir(), 'package.json'));
       const exportsMap = pkg['exports'] as Record<string, unknown> | undefined;
       expect(exportsMap).toBeDefined();
@@ -246,7 +247,7 @@ describe('Packaging contract — dist-level', () => {
     });
   });
 
-  describe('primary entry re-exports the 4 subpaths', () => {
+  describe('primary entry re-exports the 5 subpaths', () => {
     const rootBundlePath = () => path.resolve(distDir(), 'fesm2022', 'halolib-ui-angular.mjs');
 
     it('root fesm2022 bundle exists', () => {

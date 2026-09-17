@@ -17,11 +17,13 @@ export {
   HA_BUTTON_TOKENS,
   HA_INPUT_TEXT_TOKENS,
   HA_SELECT_TOKENS,
+  HA_BREADCRUMB_TOKENS,
 } from './lib/theme/component-token-shapes';
 export type {
   HaButtonTokens,
   HaInputTextTokens,
   HaSelectTokens,
+  HaBreadcrumbTokens,
 } from './lib/theme/component-token-shapes';
 
 export {
