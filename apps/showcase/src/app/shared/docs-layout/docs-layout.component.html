@@ -1,5 +1,28 @@
 <div class="app-shell">
-  <app-sidebar brandTitle="halo-ui" brandSubtitle="v19.0.1" />
+  <button
+    type="button"
+    class="app-menu-toggle fixed top-4 right-4 z-[60] flex h-10 w-10 items-center justify-center rounded-xl border border-surface-border bg-surface-card shadow-soft-airy md:hidden"
+    [attr.aria-expanded]="sidebarOpen()"
+    aria-controls="app-sidebar-nav"
+    aria-label="Abrir menú de navegación"
+    (click)="toggleSidebar()"
+  >
+    <svg class="h-5 w-5 text-zinc-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+  </button>
+
+  @if (sidebarOpen()) {
+    <div class="app-sidebar-backdrop fixed inset-0 z-40 bg-black/40 md:hidden" (click)="closeSidebar()"></div>
+  }
+
+  <app-sidebar
+    id="app-sidebar-nav"
+    brandTitle="halo-ui"
+    brandSubtitle="v19.0.1"
+    [open]="sidebarOpen()"
+    (linkClicked)="closeSidebar()"
+  />
 
   <main class="app-main">
     <router-outlet />
