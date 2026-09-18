@@ -16,8 +16,9 @@
 //      `dist/libs/halo-ui`, never `libs/halo-ui` (source) or
 //      `changeset publish` (the #85 regression).
 //   3. Single-package entry-point resolution: the dist package.json's
-//      `exports` map must expose all 5 required subpaths (`.`, `./core`,
-//      `./button`, `./input-text`, `./select`), each with both a runtime and
+//      `exports` map must expose all 7 required subpaths (`.`, `./core`,
+//      `./button`, `./input-text`, `./select`, `./icon`, `./breadcrumb`),
+//      each with both a runtime and
 //      a types entry.
 //   4. No runtime cross-package dependency: the dist package.json must
 //      declare zero `@halolib-ui/*` entries in `dependencies` or
@@ -172,10 +173,18 @@ test('checkDistPublishTargetInvariant fails when the step reverts to the old 5-p
 
 // ----------------------------------------------------------------------
 // Single-package entry-point resolution (spec: "Import Resolution as
-// Installed npm Package" — root + 4 subpaths must all resolve with types).
+// Installed npm Package" — root + 6 subpaths must all resolve with types).
 // ----------------------------------------------------------------------
 
-const REQUIRED_ENTRY_POINTS = ['.', './core', './button', './input-text', './select'];
+const REQUIRED_ENTRY_POINTS = [
+  '.',
+  './core',
+  './button',
+  './input-text',
+  './select',
+  './icon',
+  './breadcrumb',
+];
 
 const FULL_EXPORTS_MAP = {
   './package.json': { default: './package.json' },
@@ -187,9 +196,14 @@ const FULL_EXPORTS_MAP = {
     types: './input-text/index.d.ts',
   },
   './select': { default: './fesm2022/halolib-ui-angular-select.mjs', types: './select/index.d.ts' },
+  './icon': { default: './fesm2022/halolib-ui-angular-icon.mjs', types: './icon/index.d.ts' },
+  './breadcrumb': {
+    default: './fesm2022/halolib-ui-angular-breadcrumb.mjs',
+    types: './breadcrumb/index.d.ts',
+  },
 };
 
-test('checkExportsShape passes when all 5 required entry points have a runtime + types entry', () => {
+test('checkExportsShape passes when all 7 required entry points have a runtime + types entry', () => {
   const result = checkExportsShape(FULL_EXPORTS_MAP, REQUIRED_ENTRY_POINTS);
   assert.equal(result.ok, true);
   assert.deepEqual(result.missing, []);

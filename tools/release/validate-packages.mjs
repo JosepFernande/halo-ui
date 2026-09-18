@@ -10,19 +10,19 @@
  * stayed green end to end when this happened before.
  *
  * Post-consolidation there is exactly ONE publishable Nx project
- * (`libs/halo-ui`, npm name `@halolib-ui/angular`) with 4 ng-packagr
- * secondary entry points (core, button, input-text, select) instead of 5
- * separate publishable libs. The old publish-order invariant
+ * (`libs/halo-ui`, npm name `@halolib-ui/angular`) with 6 ng-packagr
+ * secondary entry points (core, button, input-text, select, icon, breadcrumb)
+ * instead of 5 separate publishable libs. The old publish-order invariant
  * (`extractPublishOrder`/`checkPublishOrderInvariant`) is gone — there is
  * nothing left to order.
  *
  * Checks:
  *   1. Exactly one publishable lib exists under libs/* (publishConfig.access
  *      === "public").
- *   2. Its dist/libs/halo-ui/package.json exposes all 5 required export
- *      entries (`.`, `./core`, `./button`, `./input-text`, `./select`),
- *      each with a runtime ("default") entry AND a "types" entry, and every
- *      referenced file resolves on disk.
+ *   2. Its dist/libs/halo-ui/package.json exposes all 6 required export
+ *      entries (`.`, `./core`, `./button`, `./input-text`, `./select`,
+ *      `./icon`, `./breadcrumb`), each with a runtime ("default") entry AND a
+ *      "types" entry, and every referenced file resolves on disk.
  *   3. Its dist package.json declares zero `@halolib-ui/*` entries in
  *      `dependencies` or `peerDependencies` (no runtime cross-package
  *      dependency survives consolidation).
@@ -45,7 +45,15 @@ const repoRoot = resolve(scriptDir, '../..');
 const workflowPath = join(repoRoot, '.github/workflows/release.yml');
 
 /** Subpaths every consumer must be able to resolve (spec: library-packaging). */
-const REQUIRED_ENTRY_POINTS = ['.', './core', './button', './input-text', './select'];
+const REQUIRED_ENTRY_POINTS = [
+  '.',
+  './core',
+  './button',
+  './input-text',
+  './select',
+  './icon',
+  './breadcrumb',
+];
 
 const failures = [];
 const log = (msg) => console.log(msg);
