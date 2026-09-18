@@ -106,6 +106,14 @@ jobs:
         if: steps.changesets.outputs.has_changesets == 'true'
         run: npx changeset version
 
+      # Keep the showcase's displayed @halolib-ui/angular version aligned with
+      # the publishable library version before the version-packages PR is
+      # created. The release workflow updates libs/halo-ui/package.json via
+      # `changeset version`; this step propagates that bump to the landing page.
+      - name: Sync showcase version
+        if: steps.changesets.outputs.has_changesets == 'true'
+        run: npm run sync:showcase-version
+
       - name: Create Release Pull Request
         id: cpr
         if: steps.changesets.outputs.has_changesets == 'true'
