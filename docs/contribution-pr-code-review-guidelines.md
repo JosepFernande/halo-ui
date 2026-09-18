@@ -99,10 +99,10 @@ A reviewer should verify:
 
 ### CI
 
-- [ ] All CI checks pass (`lint`, `stylelint`, `test`, `build`, `audit`).
-      `gga-review` is listed as a required check in branch protection, but its
-      job uses `continue-on-error: true` — in practice it never blocks the
-      merge, so a human reviewer must still read its output.
+- [ ] All CI checks pass (`lint`, `stylelint`, `test`, `build`, `audit`,
+      `gga-review`). The `gga-review` job is a required status check and is now
+      a hard gate: only `STATUS: PASSED` allows the merge; `FAILED`, an
+      ambiguous response, or no `STATUS:` at all blocks the PR.
 - [ ] No `[skip ci]` in commit messages.
 - [ ] The changeset is correct (packages, bump type, description).
 

@@ -256,7 +256,6 @@ jobs:
   gga-review:
     needs: setup
     runs-on: ubuntu-latest
-    continue-on-error: true
     permissions:
       contents: read
       pull-requests: write
@@ -448,16 +447,51 @@ jobs:
         id: gga_review
         if: steps.filter.outputs.reviewable == 'true'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_BASE_BRANCH: ${{ github.base_ref }}
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
         run: |
           set +e
           gga run --pr-mode --ci 2>&1 | tee /tmp/gga-review.log
-          exit_code="${PIPESTATUS[0]}"
+          gga_exit="${PIPESTATUS[0]}"
           set -e
-          echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"
-          exit "$exit_code"
+
+          # Strip ANSI color/cursor codes before parsing so the STATUS line is
+          # readable even if the provider wrapped it in formatting.
+          sed $'s/\x1b\[[0-9;]*[mK]//g' /tmp/gga-review.log > /tmp/gga-review-plain.log
+
+          # Parse the LAST STATUS line using the same normalization rules as the
+          # patched gga parse_review_status() (last-wins protects against the
+          # model echoing the instruction back before its real verdict).
+          verdict="UNKNOWN"
+          while IFS= read -r line; do
+            line="${line#"${line%%[![:space:]]*}"}"
+            line="${line%"${line##*[![:space:]]}"}"
+            line="${line#\*\*}"
+            line="${line%\*\*}"
+            line="${line#\*}"
+            line="${line%\*}"
+            line="${line#\`}"
+            line="${line%\`}"
+            line="${line#\# }"
+            line="${line#> }"
+            if [[ "$line" =~ ^STATUS:[[:space:]]*(PASSED|FAILED)([^[:alnum:]_].*)?$ ]]; then
+              verdict="${BASH_REMATCH[1]}"
+            fi
+          done < /tmp/gga-review-plain.log
+
+          echo "verdict=$verdict" >> "$GITHUB_OUTPUT"
+          echo "gga_exit=$gga_exit" >> "$GITHUB_OUTPUT"
+
+          if [[ "$verdict" == "PASSED" ]]; then
+            echo "gga review verdict: PASSED"
+            exit 0
+          elif [[ "$verdict" == "FAILED" ]]; then
+            echo "gga review verdict: FAILED"
+            exit 1
+          else
+            echo "gga review verdict: UNKNOWN/AMBIGUOUS (gga exit=$gga_exit)"
+            exit 1
+          fi
       - name: Comment gga review on PR
         if: steps.filter.outputs.reviewable == 'true' && always()
         env:
@@ -467,20 +501,37 @@ jobs:
           # garbled literal escape sequences instead of colors.
           sed -i 's/\x1b\[[0-9;]*[mK]//g' /tmp/gga-review.log
 
-          # Everything from the STATUS: line onward is the model's own
-          # Spanish-templated verdict (header + result + table, per #54) —
-          # the setup banner and agent tool-call trace before it add no
-          # value here; they're still visible in the Actions job log.
-          awk '/^STATUS:/{p=1; next} p' /tmp/gga-review.log > /tmp/gga-verdict.md
+          verdict="${{ steps.gga_review.outputs.verdict }}"
+          gga_exit="${{ steps.gga_review.outputs.gga_exit }}"
 
-          if [[ -s /tmp/gga-verdict.md ]]; then
-            # Model produced its templated verdict — use it as-is, don't
-            # prepend a second header or it duplicates the model's own.
-            cp /tmp/gga-verdict.md /tmp/gga-comment.md
+          if [[ "$verdict" == "PASSED" || "$verdict" == "FAILED" ]]; then
+            # The model produced a templated verdict starting with STATUS:.
+            # Cut from the LAST STATUS line onward so we keep the real final
+            # verdict (last-wins matches the parser in the previous step).
+            awk '
+              /^STATUS:/ {
+                buf = ""
+                found = 1
+                next
+              }
+              found { buf = buf $0 "\n" }
+              END { printf "%s", buf }
+            ' /tmp/gga-review.log > /tmp/gga-comment.md
+
+            if [[ ! -s /tmp/gga-comment.md ]]; then
+              # Defensive fallback: STATUS was parsed but the body is empty.
+              label="✅ APROBADO"
+              [[ "$verdict" == "FAILED" ]] && label="❌ RECHAZADO"
+              {
+                echo "### 🤖 Gentleman Guardian Angel — Revisión de PR"
+                echo ""
+                echo "**Resultado:** $label"
+              } > /tmp/gga-comment.md
+            fi
           elif grep -q "No matching files changed in PR" /tmp/gga-review.log; then
-            # gga's own file-pattern filter (*.ts,*.js,*.css,*.scss,*.html)
-            # found nothing to review — this is a legitimate skip, not a
-            # failure, so it must not read as one in the PR comment.
+            # gga's own file-pattern filter found nothing to review — this is a
+            # legitimate skip, not a failure, so it must not read as one in the
+            # PR comment. The job itself exited successfully in this case.
             {
               echo "### 🤖 Gentleman Guardian Angel — Revisión de PR"
               echo ""
@@ -493,7 +544,7 @@ jobs:
             {
               echo "### 🤖 Gentleman Guardian Angel — Revisión de PR"
               echo ""
-              echo "**Resultado:** ❌ FALLÓ (exit code ${{ steps.gga_review.outputs.exit_code }}, sin veredicto — ver logs del job)"
+              echo "**Resultado:** ❌ FALLÓ (exit code $gga_exit, sin veredicto — ver logs del job)"
             } > /tmp/gga-comment.md
           fi
 
@@ -510,7 +561,8 @@ jobs:
                 "${{ needs.stylelint.result }}" != "success" || \
                 "${{ needs.test.result }}" != "success" || \
                 "${{ needs.build.result }}" != "success" || \
-                "${{ needs.audit.result }}" != "success" ]]; then
+                "${{ needs.audit.result }}" != "success" || \
+                "${{ needs.gga-review.result }}" != "success" ]]; then
             echo "One or more required jobs failed."
             exit 1
           fi
