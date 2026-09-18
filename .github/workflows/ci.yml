@@ -499,8 +499,18 @@ jobs:
 
           gh pr comment "${{ github.event.pull_request.number }}" --body-file /tmp/gga-comment.md
 
+  validate-showcase-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+      - run: npm run validate:showcase-version
+
   summary:
-    needs: [lint, stylelint, test, build, audit, gga-review]
+    needs: [lint, stylelint, test, build, audit, gga-review, validate-showcase-version]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -510,7 +520,8 @@ jobs:
                 "${{ needs.stylelint.result }}" != "success" || \
                 "${{ needs.test.result }}" != "success" || \
                 "${{ needs.build.result }}" != "success" || \
-                "${{ needs.audit.result }}" != "success" ]]; then
+                "${{ needs.audit.result }}" != "success" || \
+                "${{ needs.validate-showcase-version.result }}" != "success" ]]; then
             echo "One or more required jobs failed."
             exit 1
           fi
