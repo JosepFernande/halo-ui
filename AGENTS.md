@@ -19,6 +19,7 @@ code.
 | `lib-ui-testing`          | Writing or reviewing tests. Defines TestBed + Test Host pattern, jest-axe a11y, CDK mocking, coverage thresholds, and required describe blocks per component.                                                                       | [`skills/lib-ui-testing/SKILL.md`](skills/lib-ui-testing/SKILL.md)                   |
 | `github-issues-from-docs` | crear issue, GitHub issue, US-XX, revisar issue, alinear issue con documentación. Crear y revisar issues de GitHub alineados con la documentación técnica de `docs/`, usando un índice de tags local para elegir qué archivos leer. | [`skills/github-issues-from-docs/SKILL.md`](skills/github-issues-from-docs/SKILL.md) |
 | `lib-ui-release`          | hacer un release, publicar a npm, por qué no se publicó, trabajar con `.changeset/`, revisar el workflow `release.yml`. Checklist operativo del pipeline de release y validación de paquetes antes del publish (validate-packages). | [`skills/lib-ui-release/SKILL.md`](skills/lib-ui-release/SKILL.md)                   |
+| `lib-ui-version-align`    | PR, release, version, showcase, `@halolib-ui/angular`, align version. Mantener alineada la versión mostrada en el showcase con `libs/halo-ui/package.json`.                                                                         | [`skills/lib-ui-version-align/SKILL.md`](skills/lib-ui-version-align/SKILL.md)       |
 
 ## Project Language Override
 
