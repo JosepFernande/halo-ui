@@ -42,5 +42,16 @@ stylesheet is loaded via the `build`/`serve` target's `styles` array.
 ## CI
 
 The showcase app builds and lints as part of the regular `ci.yml` workflow's
-`npx nx run-many -t lint` / `-t build` steps, alongside every other project —
-there is no dedicated workflow for it.
+`npx nx run-many -t lint` / `-t build` steps, alongside every other project.
+
+In addition, `.github/workflows/deploy-pages.yml` runs on every push to `main`
+that touches `apps/showcase/**`, `libs/**`, or the workflow file itself. It
+builds the showcase with:
+
+```bash
+npx nx build showcase --configuration=production --base-href=/halo-ui/
+```
+
+and deploys `dist/showcase/browser` to GitHub Pages. The `base-href=/halo-ui/`
+value matches the repository name so the deployed app resolves its assets
+correctly under the `https://<org>.github.io/halo-ui/` path.

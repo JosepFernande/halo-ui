@@ -28,8 +28,8 @@ elsewhere.
 
 ## Workflow Overview
 
-There are three workflows in `.github/workflows/` (verified via
-`gh workflow list`: `CI`, `Release`, `Smoke` — all `active`):
+There are four workflows in `.github/workflows/` (verified via
+`gh workflow list`: `CI`, `Release`, `Smoke`, `Deploy Pages` — all `active`):
 
 1. **`ci.yml`** — runs only on `pull_request` (not on push to `main`). Lint,
    stylelint, test, build, audit, gga-review. Must pass before merge (see branch
@@ -37,14 +37,20 @@ There are three workflows in `.github/workflows/` (verified via
 2. **`release.yml`** — runs on every push to `main` that touches `libs/**`,
    `.changeset/**`, `package.json`, `package-lock.json`, or the workflow file
    itself. With pending changesets, it opens a **Release PR** with the version
-   bumps (does not commit to `main` directly); once that PR is merged (no
-   pending changesets left), it validates and publishes to npm, creates a git
-   tag, and cuts a GitHub Release.
-3. **`smoke.yml`** — runs on every push to `main`. Build-only, lightweight:
-   branch protection already requires the branch to be up to date with `main`
-   before merging, so re-running lint/test/audit would be pure duplication; this
-   job only catches environment failures (registry down, rotated secret, runner
+   bumps (does not commit to `main` directly), enables auto-merge for that PR,
+   polls until the PR merges, and then — in the same run — builds, validates,
+   publishes to npm, creates a git tag, and cuts a GitHub Release.
+3. **`smoke.yml`** — runs on every push to `main` whose paths are ignored by
+   `release.yml` (docs-only or similar). Build-only, lightweight: branch
+   protection already requires the branch to be up to date with `main` before
+   merging, so re-running lint/test/audit would be pure duplication; this job
+   only catches environment failures (registry down, rotated secret, runner
    drift) independent of the code.
+4. **`deploy-pages.yml`** — runs on every push to `main` that touches
+   `apps/showcase/**`, `libs/**`, or the workflow file itself. Builds
+   `apps/showcase` with
+   `nx build showcase --configuration=production --base-href=/halo-ui/` and
+   deploys the output to GitHub Pages. See [Showcase](./showcase.md).
 
 ## `ci.yml` (PR checks)
 
@@ -123,7 +129,6 @@ jobs:
 
   gga-review:
     runs-on: ubuntu-latest
-    continue-on-error: true
     permissions:
       contents: read
       pull-requests: write
@@ -131,6 +136,7 @@ jobs:
       # Installs opencode + gga, patches gga's status parser and PR template
       # (see "AI Code Review" below), runs `gga run --pr-mode --ci`, and
       # always comments the verdict on the PR via `gh pr comment`.
+      # A STATUS: FAILED here fails the job and blocks the merge.
 
   summary:
     needs: [lint, stylelint, test, build, audit, gga-review]
@@ -143,7 +149,8 @@ jobs:
                 "${{ needs.stylelint.result }}" != "success" || \
                 "${{ needs.test.result }}" != "success" || \
                 "${{ needs.build.result }}" != "success" || \
-                "${{ needs.audit.result }}" != "success" ]]; then
+                "${{ needs.audit.result }}" != "success" || \
+                "${{ needs.gga-review.result }}" != "success" ]]; then
             echo "One or more required jobs failed."
             exit 1
           fi
@@ -155,10 +162,11 @@ Infrastructure" above; see the real `ci.yml` for the literal steps.)
 
 **Required status checks** (verified via
 `gh api repos/:owner/:repo/branches/main/protection`): `audit`, `build`, `lint`,
-`test`, `gga-review`, `stylelint`. `gga-review` is listed as required, but its
-job has `continue-on-error: true` — the inner step can fail without failing the
-job, so in practice it never blocks the merge (a real soft-fail, even though it
-is formally marked "required").
+`test`, `gga-review`, `stylelint`. The `gga-review` job is a hard gate: it no
+longer uses `continue-on-error`, so if `gga run --pr-mode --ci` returns
+`STATUS: FAILED`, the job fails, the workflow run fails, and branch protection
+blocks the merge. The PR always receives a comment with the verdict because the
+comment step runs `always()`.
 
 ## `release.yml` (main only)
 
@@ -166,33 +174,38 @@ is formally marked "required").
 `package.json`, `package-lock.json`, `.github/workflows/release.yml`) — a
 docs-only merge does not trigger this workflow.
 
-**Timeout:** `timeout-minutes: 30` at the job level — covers the worst case
-without blocking the `release-main` concurrency group for hours if an
-`npm ci`/publish hangs.
+**Timeout:** `timeout-minutes: 45` at the job level — covers the
+version-packages PR's own required checks (observed ~12 min on a real run) plus
+build, validation, audit and publish without blocking the `release-main`
+concurrency group for hours if an `npm ci`/publish hangs.
 
-**Real behavior — Release PR pattern, not a direct push:**
+**Real behavior — Release PR pattern with auto-merge + polling:**
 
-- If there are pending changesets: build, then `npx changeset version`, and
-  instead of committing to `main` directly it opens a **Release PR**
-  (`peter-evans/create-pull-request@v7`, branch `release/version-packages`) with
-  the version bumps and CHANGELOGs. Publish does **not** happen in this same
-  run.
 - The "Check for changesets" gate is a custom script, not `changeset status`. It
   compares the existing `.md` files against `.changeset/pre.json`'s `changesets`
   array only when `pre.json` exists and its `mode` is `"pre"`; if `pre.json`
   doesn't exist (the repo's real state today — see
   [Release and Publishing](./release-and-publishing.md)) or its `mode` is
   `"exit"`, any pending `.md` file counts as pending unconditionally.
-- When the Release PR is merged (no changesets left pending): runs
+- If there are pending changesets: runs `npx changeset version`, opens a
+  **Release PR** (`peter-evans/create-pull-request@v7`, branch
+  `release/version-packages`) with the version bumps and CHANGELOGs, and enables
+  `gh pr merge --auto --squash` on it. The job then polls the PR state (up to
+  ~20 min) until it merges; because GitHub Actions does not trigger new workflow
+  runs for pushes made with `GITHUB_TOKEN`, the publish must continue in this
+  same run rather than waiting for a second `release.yml` invocation.
+- Once the Release PR merges (or if there were no pending changesets from the
+  start): runs `npx nx build halo-ui --configuration=production`, runs
   `npm audit --omit=dev --audit-level=critical` as a **non-blocking** step
   (`continue-on-error: true`) and uploads the JSON report as an artifact instead
-  of failing the job; runs `npm run validate:packages` as a **blocking** step
-  (fails the release if any package's `dist/` `package.json` lost its
-  `main`/`exports["."]`/`typings` entry point, or if the workflow stopped
-  publishing from `dist/<lib>`); publishes each package directly from
-  `dist/libs/<lib>` (not via `changeset publish`); and, if it actually published
-  something new, creates a `release-v<version>` tag and a GitHub Release named
-  after that real version.
+  of failing the job, runs `npm run validate:packages` as a **blocking** step
+  (fails the release if `dist/libs/halo-ui/package.json` lost any required
+  subpath export, its `main`/`exports["."]`/`typings`, or if the workflow
+  stopped publishing from `dist/libs/halo-ui`), publishes `@halolib-ui/angular`
+  directly from `dist/libs/halo-ui` with
+  `npm publish "dist/libs/halo-ui" --access public` (not via
+  `changeset publish`), and, if it actually published something new, creates a
+  `release-v<version>` tag and a GitHub Release named after that real version.
 
 See [Release and Publishing](./release-and-publishing.md) for the full publish
 loop, the prerelease/`alpha` dist-tag logic, and the historical bugs this
@@ -209,8 +222,26 @@ CI. This job only covers what the PR can't: environment failures (npm registry
 down, rotated secret, runner drift).
 
 The `apps/showcase` app builds and lints alongside every other project as part
-of `ci.yml`'s regular `nx run-many` steps — there is no dedicated workflow for
-it. See [Showcase](./showcase.md).
+of `ci.yml`'s regular `nx run-many` steps, and is also deployed by
+`deploy-pages.yml` on relevant pushes. See [Showcase](./showcase.md).
+
+## `deploy-pages.yml` (GitHub Pages deploy)
+
+**Trigger:** `push` to `main`, filtered by `paths` (`apps/showcase/**`,
+`libs/**`, `.github/workflows/deploy-pages.yml`).
+
+Two jobs:
+
+1. **`build`** — checks out the repo, installs dependencies, restores the Nx
+   cache, runs `actions/configure-pages@v5`, builds the showcase with
+   `npx nx build showcase --configuration=production --base-href=/halo-ui/`, and
+   uploads `dist/showcase/browser` as a Pages artifact.
+2. **`deploy`** — depends on `build`, runs in the `github-pages` environment,
+   and deploys the artifact with `actions/deploy-pages@v4`.
+
+Permissions: `contents: read`, `pages: write`, `id-token: write`. Concurrency
+group `pages` with `cancel-in-progress: false` so an in-flight deploy is never
+interrupted.
 
 ## Required Secrets
 
@@ -278,8 +309,33 @@ npx --no-install commitlint --edit "$1"
 **`pre-push`** — runs on every `git push`, against `origin/main`:
 
 ```bash
+eval "$(fnm env --use-on-cd)"
 npx nx affected -t build --base=origin/main
 ```
+
+`fnm env --use-on-cd` ensures the Node version managed by `fnm` is active before
+`nx` runs; without it the hook may fail on machines where the system Node does
+not match `.nvmrc`.
+
+## Native binary workaround on Linux CI
+
+Every workflow that runs `npm ci` on `ubuntu-latest` includes a temporary step
+(labeled
+`Fix missing lightningcss/@tailwindcss-oxide native binaries on Linux CI`) that
+reinstalls `lightningcss` and `@tailwindcss/oxide-linux-x64-gnu` with
+`--no-save`.
+
+**Why:** `package-lock.json` only retains resolved optionalDependency metadata
+for the platform that last ran `npm install` (Windows in this repo), so `npm ci`
+on Linux cannot resolve the native binaries that `@tailwindcss/postcss` needs at
+Angular/PostCSS compile time. Unlike `esbuild`, neither binary has a fallback
+postinstall that downloads the missing platform binary on demand.
+
+**Critical detail:** both packages are installed in a **single** `npm install`
+invocation. Running two separate `npm install` commands does not work because
+each invocation prunes "extraneous" packages from the whole `node_modules`, and
+since these binaries are intentionally not saved to the lockfile, a second run
+would delete the binary the first run just added. This is tracked as issue #146.
 
 ## Failure Handling
 
@@ -317,9 +373,14 @@ post the verdict comment on the PR (`gh pr comment`), not for model inference.
 
 1. **Pre-commit hook** (local, active) — `.husky/pre-commit` runs `gga run` if
    the binary is installed.
-2. **CI PR-mode** (`ci.yml`, `gga-review` job, `continue-on-error: true`) —
-   reviews the full PR diff. Listed as a required status check in branch
-   protection, but since it's soft-fail it never actually blocks a merge today.
+2. **CI PR-mode** (`ci.yml`, `gga-review` job) — reviews the full PR diff. It is
+   listed as a required status check in branch protection and is now a hard
+   gate. The job captures the full `gga run` output, parses the **last**
+   `STATUS: PASSED|FAILED` line using the same normalization rules as the
+   patched `parse_review_status()`, and the step's exit code is driven by that
+   verdict: `PASSED` lets the job succeed; anything else (`FAILED`, `AMBIGUOUS`,
+   or no `STATUS:` at all) fails the job and blocks the merge. This keeps the PR
+   comment and the job state in perfect sync.
 3. **Automatic PR comment** — the job always posts the verdict (✅ APROBADO / ❌
    RECHAZADO, rule-to-evidence table in Spanish), with a fallback to "⚪ NO
    APLICA" (no files matching `FILE_PATTERNS`) or "❌ FALLÓ" (crash/timeout with
