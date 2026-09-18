@@ -1,0 +1,143 @@
+{
+  "docs_dir": "docs",
+  "documents": [
+    {
+      "page": "Architecture & Foundation",
+      "file": "architecture-and-foundation.md",
+      "tags": [
+        "arquitectura",
+        "fundamentos",
+        "tokens",
+        "standalone",
+        "signals",
+        "css-variables",
+        "cdk",
+        "monorepo",
+        "nx",
+        "apis-consistentes",
+        "naming-convention",
+        "variantes"
+      ]
+    },
+    {
+      "page": "CSS Strategy",
+      "file": "css-strategy.md",
+      "tags": [
+        "css",
+        "view-encapsulation",
+        "bem",
+        "tokens",
+        "theme-engine",
+        "default-theme",
+        "capas",
+        "ha-prefix",
+        "stylelint",
+        "eslint"
+      ]
+    },
+    {
+      "page": "Testing Strategy",
+      "file": "testing-strategy.md",
+      "tags": [
+        "testing",
+        "jest",
+        "testbed",
+        "coverage",
+        "unit-tests",
+        "accessibility-testing",
+        "showcase"
+      ]
+    },
+    {
+      "page": "ControlValueAccessor (CVA)",
+      "file": "control-value-accessor-cva.md",
+      "tags": [
+        "cva",
+        "forms",
+        "reactive-forms",
+        "ngmodel",
+        "formcontrol",
+        "form-integration",
+        "ngcontrol"
+      ]
+    },
+    {
+      "page": "CI/CD Pipeline",
+      "file": "ci-cd-pipeline.md",
+      "tags": [
+        "ci",
+        "cd",
+        "github-actions",
+        "workflows",
+        "release",
+        "branch-protection",
+        "husky",
+        "pre-commit",
+        "gga",
+        "ai-code-review"
+      ]
+    },
+    {
+      "page": "Release and Publishing",
+      "file": "release-and-publishing.md",
+      "tags": [
+        "release",
+        "publishing",
+        "npm",
+        "changesets",
+        "trusted-publishing",
+        "oidc",
+        "provenance",
+        "dist-tags",
+        "alpha"
+      ]
+    },
+    {
+      "page": "Showcase",
+      "file": "showcase.md",
+      "tags": ["showcase", "playground", "demo", "examples", "theme-registration"]
+    },
+    {
+      "page": "Theming Deep-Dive",
+      "file": "theming-deep-dive.md",
+      "tags": [
+        "theme-engine",
+        "provideHaTheme",
+        "ThemeService",
+        "colores",
+        "HSL",
+        "derivacion",
+        "normalizacion",
+        "applyTheme",
+        "overrideColor"
+      ]
+    },
+    {
+      "page": "Contribution / PR / Code Review Guidelines",
+      "file": "contribution-pr-code-review-guidelines.md",
+      "tags": [
+        "contributing",
+        "pr",
+        "code-review",
+        "guidelines",
+        "process",
+        "approval",
+        "checklist"
+      ]
+    },
+    {
+      "page": "Components",
+      "file": "components.md",
+      "tags": [
+        "components",
+        "catalog",
+        "button",
+        "input-text",
+        "select",
+        "core",
+        "umbrella",
+        "halo-ui-angular"
+      ]
+    }
+  ]
+}
