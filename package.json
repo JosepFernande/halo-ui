@@ -21,6 +21,8 @@
     "changeset": "changeset",
     "tree-shaking": "source-map-explorer 'dist/libs/halo-ui/fesm2022/**/*.mjs'",
     "validate:packages": "node tools/release/validate-packages.mjs",
+    "sync:showcase-version": "node tools/release/sync-showcase-version.mjs",
+    "validate:showcase-version": "node tools/release/validate-showcase-version.mjs",
     "prepare": "([ -n \"$CI\" ] && echo \"Skipping husky in CI\") || husky"
   },
   "private": true,
