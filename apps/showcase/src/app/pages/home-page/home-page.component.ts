@@ -15,7 +15,7 @@ export class HomePageComponent {
   private static readonly INSTALL_COMMAND = 'npm install @halolib-ui/angular @angular/cdk';
 
   /** Published version of `@halolib-ui/angular` (`libs/halo-ui/package.json`). Update alongside a release bump. */
-  protected static readonly LIBRARY_VERSION = '19.2.0';
+  protected static readonly LIBRARY_VERSION = '19.2.1';
 
   /** Whether the install command was just copied to the clipboard (resets after ~2s). */
   protected readonly copied = signal(false);
