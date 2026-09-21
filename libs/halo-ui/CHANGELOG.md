@@ -1,5 +1,11 @@
 # @halolib-ui/angular
 
+## 19.2.1
+
+### Patch Changes
+
+- dfe89a9: docs: actualizar README y homepage para npm
+
 ## 19.2.0
 
 ### Minor Changes
