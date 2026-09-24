@@ -1,11 +1,13 @@
 # ControlValueAccessor (CVA)
 
-## What Is ControlValueAccessor
+## Qué es ControlValueAccessor
 
-It's the Angular interface that lets a custom component plug into Angular's
-forms system, both Reactive Forms and Template-Driven Forms.
+Es la interfaz de Angular que permite que un componente custom se conecte al
+sistema de formularios de Angular, tanto Reactive Forms como Template-Driven
+Forms.
 
-Without CVA, an input wired to forms manually needs explicit bindings:
+Sin CVA, un input conectado a formularios manualmente necesita bindings
+explícitos:
 
 ```html
 <!-- Without CVA: the consumer has to do everything manually -->
@@ -16,7 +18,7 @@ Without CVA, an input wired to forms manually needs explicit bindings:
 />
 ```
 
-With CVA, the component integrates natively:
+Con CVA, el componente se integra de forma nativa:
 
 ```html
 <!-- With CVA: use it like any native input -->
@@ -24,13 +26,13 @@ With CVA, the component integrates natively:
 <input ha-input-text [(ngModel)]="email" />
 ```
 
-## How `HaInputText` Implements CVA (real code)
+## Cómo `HaInputText` Implementa CVA (código real)
 
-`HaInputText` (`libs/input-text/src/lib/input-text.component.ts`) uses an
-**attribute** selector on the native element (`input[ha-input-text]`), not a
-custom element (`<ha-input-text>`). The host IS the native `<input>` — the
-component has no template of its own (`template: ''`): there's no intermediate
-`value` signal, `writeValue` writes directly to the DOM.
+`HaInputText` (`libs/input-text/src/lib/input-text.component.ts`) usa un
+selector de **atributo** sobre el elemento nativo (`input[ha-input-text]`), no
+un elemento custom (`<ha-input-text>`). El host ES el `<input>` nativo — el
+componente no tiene template propio (`template: ''`): no hay un signal `value`
+intermedio, `writeValue` escribe directamente al DOM.
 
 ```typescript
 import {
@@ -118,43 +120,73 @@ export class HaInputText implements ControlValueAccessor, OnInit, OnDestroy {
 }
 ```
 
-_(Simplified excerpt — the real file additionally wires `size`, `readonly`,
-`placeholder`, `ariaLabel`/`ariaDescribedBy`, `focusOrigin` via CDK
-`FocusMonitor`, and the `hasError` logic explained below.)_
+_(Extracto simplificado — el archivo real además conecta `size`, `readonly`,
+`placeholder`, `ariaLabel`/`ariaDescribedBy`, `focusOrigin` vía CDK
+`FocusMonitor`, y la lógica de `hasError` explicada más abajo.)_
 
-There's no template and no wrapper `<div class="ha-input-text">`: the host
-element is directly the `<input>` the consumer wrote, and the BEM classes
-(`ha-input-text--error`, `ha-input-text--disabled`, etc.) apply to that same
-element via `[class]="hostClasses()"`.
+No hay template ni `<div class="ha-input-text">` envolvente: el elemento host es
+directamente el `<input>` que escribió el consumidor, y las clases BEM
+(`ha-input-text--error`, `ha-input-text--disabled`, etc.) se aplican a ese mismo
+elemento vía `[class]="hostClasses()"`.
 
-## Which Components Implement CVA Today
+### Ciclo de vida de CVA
+
+El diagrama siguiente resume cuándo Angular invoca cada método de
+`ControlValueAccessor` y cómo el componente responde a las interacciones del
+usuario:
+
+```mermaid
+sequenceDiagram
+    participant Angular as Angular Forms
+    participant CVA as HaInputText (CVA)
+    participant Usuario as Usuario
+
+    Angular->>CVA: registerOnChange(fn)
+    Angular->>CVA: registerOnTouched(fn)
+    Angular->>CVA: writeValue(valorInicial)
+    CVA-->>CVA: escribe el valor directo en el <input>
+
+    Usuario->>CVA: escribe en el input (evento input)
+    CVA->>Angular: onChange(nuevoValor)
+    Angular-->>Angular: actualiza el FormControl
+
+    Usuario->>CVA: sale del campo (evento blur)
+    CVA->>Angular: onTouched()
+    Angular-->>Angular: marca el control como touched
+
+    Angular->>CVA: setDisabledState(true/false)
+    CVA-->>CVA: formDisabled.set(isDisabled)
+```
+
+## Qué Componentes Implementan CVA Hoy
 
 | Component                              | CVA | Value type |
 | -------------------------------------- | --- | ---------- |
-| `input[ha-input-text]` (`HaInputText`) | Yes | `string`   |
-| `ha-select` (`HaSelect`)               | Yes | `unknown`  |
+| `input[ha-input-text]` (`HaInputText`) | Sí  | `string`   |
+| `ha-select` (`HaSelect`)               | Sí  | `unknown`  |
 | `button[ha-button]` (`HaButton`)       | No  | —          |
 
-`HaSelect` (`libs/select/src/lib/select.component.ts`) follows the same
-lazy-`NgControl` / `validityVersion` pattern as `HaInputText`, but it's a custom
-element with its own template (not an attribute selector on the native control):
-`writeValue` stores the raw value into a `valueState` signal instead of writing
-to the DOM, and `registerOnChange`/`registerOnTouched` wire the same way. See
-its class-level TSDoc for the full comparison.
+`HaSelect` (`libs/select/src/lib/select.component.ts`) sigue el mismo patrón
+`NgControl` perezoso / `validityVersion` que `HaInputText`, pero es un elemento
+custom con template propio (no un selector de atributo sobre el control nativo):
+`writeValue` guarda el valor crudo en un signal `valueState` en vez de escribir
+al DOM, y `registerOnChange`/`registerOnTouched` se conectan de la misma forma.
+Ver su TSDoc a nivel de clase para la comparación completa.
 
-The remaining form components (`checkbox`, `radio`, `autocomplete`) don't exist
-in the repo yet — they're roadmap, not a live contract.
+Los componentes de formulario restantes (`checkbox`, `radio`, `autocomplete`)
+todavía no existen en el repo — son roadmap, no un contrato vigente.
 
-## Injecting `NgControl`: Why It Can't Happen in the Constructor
+## Inyectar `NgControl`: Por Qué No Puede Pasar en el Constructor
 
-Earlier documentation showed `inject(NgControl, { optional: true, self: true })`
-as a field initializer. **That breaks with `NG0200` (circular DI)** in this
-component: the `[formControl]`/`formControlName` directive lives on the same
-native element and injects `NG_VALUE_ACCESSOR` in its own constructor — which is
-`HaInputText`. Resolving `NgControl` at construction time creates the cycle.
+Documentación anterior mostraba
+`inject(NgControl, { optional: true, self: true })` como inicializador de campo.
+**Eso rompe con `NG0200` (DI circular)** en este componente: la directiva
+`[formControl]`/`formControlName` vive en el mismo elemento nativo e inyecta
+`NG_VALUE_ACCESSOR` en su propio constructor — que es `HaInputText`. Resolver
+`NgControl` en tiempo de construcción crea el ciclo.
 
-The real fix resolves it lazily, on first read, using an injected `Injector` and
-a getter:
+La solución real lo resuelve de forma perezosa, en la primera lectura, usando un
+`Injector` inyectado y un getter:
 
 ```typescript
 private readonly injector = inject(Injector);
@@ -164,18 +196,18 @@ private get ngControl(): NgControl | null {
 }
 ```
 
-`ngControl.valueAccessor` is never assigned manually — Angular resolves it on
-its own via `selectValueAccessor`, because `HaInputText` is already registered
-as `NG_VALUE_ACCESSOR`.
+`ngControl.valueAccessor` nunca se asigna manualmente — Angular lo resuelve por
+su cuenta vía `selectValueAccessor`, porque `HaInputText` ya está registrado
+como `NG_VALUE_ACCESSOR`.
 
-## `hasError`: Why It Isn't a Plain `computed()`
+## `hasError`: Por Qué No Es un `computed()` Simple
 
-`control.invalid` and `control.touched` are **not signals** — a `computed()`
-that reads them directly evaluates once and stays cached forever (verified
-empirically against Angular 19). The real solution uses a `validityVersion`
-signal bumped by subscribing to the `control.events` stream (covers touched,
-status, and value changes — `statusChanges` alone misses the blur/touch
-transition):
+`control.invalid` y `control.touched` **no son signals** — un `computed()` que
+los lee directamente se evalúa una vez y queda cacheado para siempre (verificado
+empíricamente contra Angular 19). La solución real usa un signal
+`validityVersion` que se incrementa suscribiéndose al stream `control.events`
+(cubre touched, status y cambios de value — `statusChanges` por sí solo se
+pierde la transición blur/touch):
 
 ```typescript
 private readonly validityVersion = signal(0);
@@ -195,15 +227,15 @@ ngOnInit(): void {
 }
 ```
 
-`hasError` only drives state (`.ha-input-text--error` + `aria-invalid`).
-`HaInputText` renders no visual error message
-(`<span class="ha-input-text__error">` doesn't exist) and no `paFormError` pipe
-— it isn't in the repo. Showing the error text is the consumer's responsibility.
+`hasError` solo maneja estado (`.ha-input-text--error` + `aria-invalid`).
+`HaInputText` no renderiza ningún mensaje de error visual
+(`<span class="ha-input-text__error">` no existe) ni un pipe `paFormError` — no
+está en el repo. Mostrar el texto del error es responsabilidad del consumidor.
 
-## Testing CVA (real pattern: TestBed, not Angular Testing Library)
+## Testear CVA (patrón real: TestBed, no Angular Testing Library)
 
-Real tests use `TestBed` + `fixture.debugElement.query(By.css(...))`, not
-`@testing-library/angular` (that dependency is not in `package.json`):
+Los tests reales usan `TestBed` + `fixture.debugElement.query(By.css(...))`, no
+`@testing-library/angular` (esa dependencia no está en `package.json`):
 
 ```typescript
 describe('HaInputText - CVA', () => {
@@ -226,18 +258,18 @@ describe('HaInputText - CVA', () => {
 });
 ```
 
-See [Testing Strategy](./testing-strategy.md) for the full `TestBed` + Test Host
-pattern used across the real specs.
+Ver [Testing Strategy](./testing-strategy.md) para el patrón completo
+`TestBed` + Test Host usado en los specs reales.
 
-## Rules of the Team
+## Reglas del Equipo
 
-- Every form component MUST implement `ControlValueAccessor`.
-- `NgControl` MUST be resolved lazily (a getter over `Injector`,
-  `{ self: true, optional: true }`), never as a field initializer — avoids
+- Todo componente de formulario DEBE implementar `ControlValueAccessor`.
+- `NgControl` DEBE resolverse de forma perezosa (un getter sobre `Injector`,
+  `{ self: true, optional: true }`), nunca como inicializador de campo — evita
   `NG0200`.
-- Components MUST NOT break when used outside a form.
-- Error state (`invalid && touched`) is exposed via a BEM class +
-  `aria-invalid`; the visual error message is the consumer's responsibility, not
-  the component's.
-- Tests MUST cover the CVA cases: `writeValue`, `onChange` (via the `input`
-  event), `setDisabledState`.
+- Los componentes NO DEBEN romperse cuando se usan fuera de un formulario.
+- El estado de error (`invalid && touched`) se expone vía una clase BEM +
+  `aria-invalid`; el mensaje de error visual es responsabilidad del consumidor,
+  no del componente.
+- Los tests DEBEN cubrir los casos de CVA: `writeValue`, `onChange` (vía el
+  evento `input`), `setDisabledState`.
