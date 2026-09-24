@@ -1,20 +1,20 @@
-# Contribution / PR / Code Review Guidelines
+# Guías de Contribución / PR / Revisión de Código
 
-## Purpose
+## Propósito
 
-Defines the code review checklist, the Definition of Done, and repo labels for
-`halo-ui`. For the day-to-day contribution workflow — branch setup, commit
-conventions, the changeset flow, and the release mechanics — see
-[`CONTRIBUTING.md`](../CONTRIBUTING.md) at the repo root, which already covers
-that ground accurately; this document does not repeat it. Combine with
-[CI/CD Pipeline](./ci-cd-pipeline.md) (the PR checks) and
-[Testing Strategy](./testing-strategy.md) (test requirements).
+Define el checklist de revisión de código, la Definition of Done y las labels
+del repo para `halo-ui`. Para el flujo de contribución del día a día — setup de
+branches, convenciones de commits, el flujo de changesets y la mecánica de
+release — ver [`CONTRIBUTING.md`](../CONTRIBUTING.md) en la raíz del repo, que
+ya cubre ese terreno con precisión; este documento no lo repite. Combinar con
+[CI/CD Pipeline](./ci-cd-pipeline.md) (los checks del PR) y
+[Testing Strategy](./testing-strategy.md) (requisitos de tests).
 
-## PR Description Template
+## Plantilla de Descripción de PR
 
-`.github/PULL_REQUEST_TEMPLATE.md` exists and GitHub auto-fills it when opening
-a new PR (per `CONTRIBUTING.md`, PR titles/descriptions are written in Spanish
-in this repo, which is why the template is in Spanish):
+`.github/PULL_REQUEST_TEMPLATE.md` existe y GitHub la autocompleta al abrir un
+PR nuevo (según `CONTRIBUTING.md`, los títulos/descripciones de PR se escriben
+en español en este repo, por eso la plantilla está en español):
 
 ```markdown
 ## Resumen
@@ -37,158 +37,168 @@ in this repo, which is why the template is in Spanish):
 - [ ] No aplica — no toca ningún paquete publicable
 ```
 
-## Review Checklist
+## Checklist de Revisión
 
-A reviewer should verify:
+Un revisor debe verificar:
 
-### Architecture
+### Arquitectura
 
-- [ ] The 6 hard rules are respected (see the `lib-ui-architecture` skill).
-- [ ] **gga (Gentleman Guardian Angel) passes** — AI review of the 6 hard
-      rules + token system in CI.
-- [ ] No new hardcoded colors, spacing, or radius in the component's CSS.
-- [ ] No `::ng-deep`, no global selectors, no `!important` outside `:host`.
-- [ ] `ViewEncapsulation.None`, `ChangeDetectionStrategy.OnPush`,
-      `standalone: true` set.
-- [ ] The component is under 400 lines.
+- [ ] Se respetan las 6 reglas duras (ver la skill `lib-ui-architecture`).
+- [ ] **gga (Gentleman Guardian Angel) pasa** — revisión con IA de las 6 reglas
+      duras + sistema de tokens en CI.
+- [ ] No hay colores, espaciados ni radios hardcodeados nuevos en el CSS del
+      componente.
+- [ ] No hay `::ng-deep`, ni selectores globales, ni `!important` fuera de
+      `:host`.
+- [ ] Están seteados `ViewEncapsulation.None`, `ChangeDetectionStrategy.OnPush`,
+      `standalone: true`.
+- [ ] El componente tiene menos de 400 líneas.
 
 ### Theming
 
-- [ ] Colors are bound to CSS custom properties on the host, not BEM modifiers.
-- [ ] Custom colors (`treasury`, etc.) work with no component changes.
-- [ ] Hover/active/contrast states are derived automatically by the Theme
+- [ ] Los colores están vinculados a propiedades CSS custom en el host, no a
+      modificadores BEM.
+- [ ] Los colores personalizados (`treasury`, etc.) funcionan sin cambios en el
+      componente.
+- [ ] Los estados hover/active/contraste se derivan automáticamente por el Theme
       Engine.
 
-### Forms (CVA)
+### Formularios (CVA)
 
-- [ ] The component implements `ControlValueAccessor`.
-- [ ] `NgControl` is resolved lazily (getter over `Injector`,
-      `{ self: true, optional: true }`), never as a field initializer.
-- [ ] The component works outside a form (no standalone errors).
-- [ ] `onChange`, `onTouched`, `setDisabledState` are called correctly.
-- [ ] `hasError` reflects `(invalid && touched)`.
+- [ ] El componente implementa `ControlValueAccessor`.
+- [ ] `NgControl` se resuelve de forma perezosa (getter sobre `Injector`,
+      `{ self: true, optional: true }`), nunca como inicializador de campo.
+- [ ] El componente funciona fuera de un formulario (sin errores standalone).
+- [ ] `onChange`, `onTouched`, `setDisabledState` se llaman correctamente.
+- [ ] `hasError` refleja `(invalid && touched)`.
 
-### Accessibility
+### Accesibilidad
 
-- [ ] Every interactive element is keyboard-navigable.
-- [ ] The focus ring is visible (no `outline: none` without a replacement).
-- [ ] ARIA attributes are correct (role, `aria-*`, etc.).
-- [ ] The `jest-axe` test passes.
-- [ ] The component works with screen readers (manual test with VoiceOver/NVDA).
-- [ ] `prefers-reduced-motion` is respected for animations.
+- [ ] Cada elemento interactivo es navegable por teclado.
+- [ ] El anillo de foco es visible (sin `outline: none` sin un reemplazo).
+- [ ] Los atributos ARIA son correctos (role, `aria-*`, etc.).
+- [ ] El test de `jest-axe` pasa.
+- [ ] El componente funciona con lectores de pantalla (test manual con
+      VoiceOver/NVDA).
+- [ ] Se respeta `prefers-reduced-motion` para las animaciones.
 
 ### Testing
 
-- [ ] Unit tests cover inputs, outputs, signals, state changes.
-- [ ] An a11y test with `jest-axe` exists.
-- [ ] A showcase route exists with every variant and at least one custom color.
-- [ ] Interaction tests for state changes exist (where applicable).
-- [ ] Coverage thresholds are met (80/80/90/80).
+- [ ] Los tests unitarios cubren inputs, outputs, signals, cambios de estado.
+- [ ] Existe un test de a11y con `jest-axe`.
+- [ ] Existe una ruta de showcase con cada variante y al menos un color
+      personalizado.
+- [ ] Existen tests de interacción para los cambios de estado (donde aplique).
+- [ ] Se cumplen los umbrales de cobertura (80/80/90/80).
 
-### Documentation
+### Documentación
 
-- [ ] The public API is documented in TSDoc.
-- [ ] The affected lib's `README.md` is updated (if user-facing).
-- [ ] The showcase route is added/updated (if user-facing).
+- [ ] La API pública está documentada en TSDoc.
+- [ ] El `README.md` de la lib afectada está actualizado (si es user-facing).
+- [ ] La ruta de showcase está agregada/actualizada (si es user-facing).
 
 ### Performance
 
-- [ ] The component is under its size budget.
-- [ ] No heavy dependencies were added.
-- [ ] Tree-shaking is verified.
+- [ ] El componente está dentro de su presupuesto de tamaño.
+- [ ] No se agregaron dependencias pesadas.
+- [ ] El tree-shaking está verificado.
 
 ### CI
 
-- [ ] All CI checks pass (`lint`, `stylelint`, `test`, `build`, `audit`).
-      `gga-review` is listed as a required check in branch protection, but its
-      job uses `continue-on-error: true` — in practice it never blocks the
-      merge, so a human reviewer must still read its output.
-- [ ] No `[skip ci]` in commit messages.
-- [ ] The changeset is correct (packages, bump type, description).
+- [ ] Todos los checks de CI pasan (`lint`, `stylelint`, `test`, `build`,
+      `audit`). `gga-review` figura como check requerido en la protección de
+      branch, pero su job usa `continue-on-error: true` — en la práctica nunca
+      bloquea el merge, así que un revisor humano igual debe leer su output.
+- [ ] No hay `[skip ci]` en los mensajes de commit.
+- [ ] El changeset es correcto (paquetes, tipo de bump, descripción).
 
 ## Definition of Done
 
-A PR is "done" when:
+Un PR está "done" cuando:
 
-1. All CI checks pass.
-2. At least one approval (once the team grows beyond one person).
-3. Every review checklist item is checked.
-4. The branch is up to date with `main`.
-5. Conflicts are resolved.
-6. The PR is merged to `main`. The repo has squash, merge commit, and rebase all
-   enabled (verified via the repo's merge settings) — no single strategy is
-   enforced; the real history mixes all three.
+1. Todos los checks de CI pasan.
+2. Hay al menos una aprobación (una vez que el equipo crezca más allá de una
+   persona).
+3. Cada ítem del checklist de revisión está marcado.
+4. El branch está actualizado con `main`.
+5. Los conflictos están resueltos.
+6. El PR se mergea a `main`. El repo tiene squash, merge commit y rebase
+   habilitados todos (verificado vía la configuración de merge del repo) — no se
+   impone una estrategia única, la historia real mezcla las tres.
 
-After merge, `release.yml` picks up any changesets and publishes new versions if
-there are any — see [Release and Publishing](./release-and-publishing.md).
+Después del merge, `release.yml` toma los changesets pendientes y publica nuevas
+versiones si las hay — ver
+[Release and Publishing](./release-and-publishing.md).
 
 ## Labels
 
-Verified via `gh label list` — these are the labels that actually exist in the
-repo:
+Verificado vía `gh label list` — estas son las labels que realmente existen en
+el repo:
 
-| Label                  | Purpose                                    |
-| ---------------------- | ------------------------------------------ |
-| `type:feature`         | New feature or request                     |
-| `type:bug`             | Bug fix                                    |
-| `type:chore`           | Maintenance, tooling, CI, refactors        |
-| `type:docs`            | Documentation only                         |
-| `type:breaking-change` | Breaking change                            |
-| `type:refactor`        | Code refactoring                           |
-| `status:approved`      | Issue approved for implementation          |
-| `bug`                  | Something isn't working                    |
-| `documentation`        | Improvements or additions to documentation |
-| `enhancement`          | New feature or request                     |
-| `duplicate`            | This issue or pull request already exists  |
-| `good first issue`     | Good for newcomers                         |
-| `help wanted`          | Extra attention is needed                  |
-| `invalid`              | This doesn't seem right                    |
-| `question`             | Further information is requested           |
-| `wontfix`              | This will not be worked on                 |
+| Label                  | Propósito                              |
+| ---------------------- | -------------------------------------- |
+| `type:feature`         | Feature nueva o pedido                 |
+| `type:bug`             | Corrección de bug                      |
+| `type:chore`           | Mantenimiento, tooling, CI, refactors  |
+| `type:docs`            | Solo documentación                     |
+| `type:breaking-change` | Cambio disruptivo (breaking change)    |
+| `type:refactor`        | Refactor de código                     |
+| `status:approved`      | Issue aprobada para implementación     |
+| `bug`                  | Algo no está funcionando               |
+| `documentation`        | Mejoras o agregados a la documentación |
+| `enhancement`          | Feature nueva o pedido                 |
+| `duplicate`            | Esta issue o pull request ya existe    |
+| `good first issue`     | Buena para nuevos colaboradores        |
+| `help wanted`          | Se necesita atención extra             |
+| `invalid`              | Esto no parece correcto                |
+| `question`             | Se pide más información                |
+| `wontfix`              | Esto no se va a resolver               |
 
-`area:*`, `needs-changeset`, `needs-tests`, `needs-a11y`, `wip`, and
-`do-not-merge` do **not** exist in the repo — an earlier version of this page
-documented them; they were removed here to match reality.
+`area:*`, `needs-changeset`, `needs-tests`, `needs-a11y`, `wip` y `do-not-merge`
+**no** existen en el repo — una versión anterior de esta página las documentaba;
+se quitaron acá para reflejar la realidad.
 
-## Etiquette
+## Etiqueta
 
-- **Be kind.** Reviewers are contributors too. Critique the code, not the
-  person.
-- **Be specific.** "This could be better" isn't actionable. "Move the `onChange`
-  call after `value.set()` to avoid a race condition" is.
-- **Be responsive.** Aim to review PRs within 24 hours. Comment early if you
-  can't.
-- **Be honest.** Ask if something doesn't make sense. Say so, with reasoning, if
-  something looks wrong.
-- **Disagree and commit.** If author and reviewer can't agree after 2 rounds,
-  escalate (for now, the maintainer decides).
+- **Sé amable.** Los revisores también son contribuyentes. Critica el código, no
+  a la persona.
+- **Sé específico.** "Esto podría estar mejor" no es accionable. "Mové la
+  llamada a `onChange` después de `value.set()` para evitar una race condition"
+  sí lo es.
+- **Sé receptivo.** Apuntá a revisar los PR dentro de 24 horas. Comentá temprano
+  si no podés.
+- **Sé honesto.** Preguntá si algo no tiene sentido. Decilo, con justificación,
+  si algo parece incorrecto.
+- **Discrepá y comprometete.** Si autor y revisor no logran acordar después de 2
+  rondas, escalar (por ahora, el maintainer decide).
 
-## Maintainer Duties
+## Responsabilidades del Maintainer
 
-If you're the maintainer:
+Si sos el maintainer:
 
-- Triage issues within 48 hours.
-- Review PRs within 24 hours.
-- Cut a release every 2 weeks (or as needed).
-- Update architecture docs when the architecture changes.
-- Communicate breaking changes clearly (in PRs, release notes, and docs).
+- Triagear issues dentro de 48 horas.
+- Revisar PRs dentro de 24 horas.
+- Cortar un release cada 2 semanas (o según se necesite).
+- Actualizar los docs de arquitectura cuando la arquitectura cambie.
+- Comunicar los breaking changes con claridad (en PRs, release notes y docs).
 
-## Rules of the Team
+## Reglas del Equipo
 
-- Every PR MUST pass all CI checks before merge.
-- Every user-facing PR MUST include a changeset.
-- Every component PR MUST add/update tests, stories, and the showcase.
-- Every PR description MUST follow the template.
-- Every review MUST use the checklist (or explain why an item doesn't apply).
-- Breaking changes MUST be flagged in the PR title with `!` and in the changeset
-  footer.
-- No self-merge without a second look (even a solo maintainer should wait 24
-  hours for feedback when possible).
+- Todo PR DEBE pasar todos los checks de CI antes del merge.
+- Todo PR user-facing DEBE incluir un changeset.
+- Todo PR de componente DEBE agregar/actualizar tests, stories y el showcase.
+- Toda descripción de PR DEBE seguir la plantilla.
+- Toda revisión DEBE usar el checklist (o explicar por qué un ítem no aplica).
+- Los breaking changes DEBEN marcarse en el título del PR con `!` y en el footer
+  del changeset.
+- No self-merge sin una segunda mirada (incluso un maintainer solo debería
+  esperar 24 horas por feedback cuando sea posible).
 
-## Reference
+## Referencia
 
-- [`CONTRIBUTING.md`](../CONTRIBUTING.md) — branch naming, commit conventions,
-  the changeset workflow, quick-start commands
-- `lib-ui-coding-standards` skill (`skills/lib-ui-coding-standards/SKILL.md`) —
-  file structure, input/output conventions, gga review criteria
-- [CI/CD Pipeline](./ci-cd-pipeline.md) — the checks referenced above
+- [`CONTRIBUTING.md`](../CONTRIBUTING.md) — nomenclatura de branches,
+  convenciones de commits, el flujo de changesets, comandos de inicio rápido
+- skill `lib-ui-coding-standards` (`skills/lib-ui-coding-standards/SKILL.md`) —
+  estructura de archivos, convenciones de input/output, criterios de revisión de
+  gga
+- [CI/CD Pipeline](./ci-cd-pipeline.md) — los checks referenciados arriba
