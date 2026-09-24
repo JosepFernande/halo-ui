@@ -5,24 +5,37 @@ import {
   signal,
   ViewEncapsulation,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { HaBreadcrumb } from '@halolib-ui/angular/breadcrumb';
 import type { HaBreadcrumbItem, HaBreadcrumbSize } from '@halolib-ui/angular/breadcrumb';
 import { CodeBlockComponent } from '../../shared/code-block/code-block.component';
-
-/** One row of the real `HaBreadcrumb` Inputs API reference table. */
-interface ApiInput {
-  readonly name: string;
-  readonly type: string;
-  readonly default: string;
-  readonly description: string;
-}
+import {
+  ApiTableComponent,
+  type ShowcaseApiRow,
+} from '../../shared/showcase-shell/api-table/api-table.component';
+import {
+  PageFooterComponent,
+  type ShowcaseFooterLink,
+} from '../../shared/showcase-shell/page-footer/page-footer.component';
+import {
+  PageHeaderComponent,
+  type ShowcaseJumpLink,
+} from '../../shared/showcase-shell/page-header/page-header.component';
+import { PlaygroundComponent } from '../../shared/showcase-shell/playground/playground.component';
+import { SectionComponent } from '../../shared/showcase-shell/section/section.component';
 
 /** Showcase playground for `ha-breadcrumb` (`libs/halo-ui/breadcrumb`). */
 @Component({
   selector: 'app-breadcrumb-page',
   standalone: true,
-  imports: [RouterLink, HaBreadcrumb, CodeBlockComponent],
+  imports: [
+    HaBreadcrumb,
+    CodeBlockComponent,
+    SectionComponent,
+    PlaygroundComponent,
+    ApiTableComponent,
+    PageHeaderComponent,
+    PageFooterComponent,
+  ],
   templateUrl: './breadcrumb-page.component.html',
   styleUrl: './breadcrumb-page.component.css',
   encapsulation: ViewEncapsulation.None,
@@ -38,7 +51,7 @@ export class BreadcrumbPageComponent {
   protected readonly sizes: readonly HaBreadcrumbSize[] = ['sm', 'md', 'lg'];
 
   /** The real 5-input `HaBreadcrumb` API surface — no more, no less. */
-  protected readonly apiInputs: readonly ApiInput[] = [
+  protected readonly apiInputs: readonly ShowcaseApiRow[] = [
     {
       name: 'items',
       type: 'HaBreadcrumbItem[]',
@@ -66,6 +79,25 @@ export class BreadcrumbPageComponent {
         'Muestra los primeros N items + "…" + el último cuando la cantidad total los supera. Debe ser un entero positivo — 0, negativo o con decimales no colapsan (se muestran todos). El "…" abre un overlay con los items intermedios.',
     },
   ];
+
+  protected readonly jumpLinks: ShowcaseJumpLink[] = [
+    { href: '#playground', label: 'Playground' },
+    { href: '#api-reference', label: 'API Docs' },
+  ];
+
+  protected readonly prevLink: ShowcaseFooterLink = {
+    path: '/iconos',
+    label: 'Iconos',
+    hint: 'Anterior',
+    icon: 'prev',
+  };
+
+  protected readonly nextLink: ShowcaseFooterLink = {
+    path: '/',
+    label: 'Volver al inicio',
+    hint: 'Fin del recorrido',
+    icon: 'home',
+  };
 
   // --- Interactive Playground state (Section 1) ---
 

@@ -1,0 +1,54 @@
+<ng-content select="[breadcrumb]" />
+
+<div class="mb-10 border-b border-surface-border pb-6">
+  <div class="mb-3 flex flex-wrap items-center gap-3">
+    <code class="rounded-lg bg-zinc-900 px-3 py-1.5 font-mono text-lg font-bold text-white sm:text-xl">{{
+      selector()
+    }}</code>
+    <span class="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">{{ statusBadge() }}</span>
+  </div>
+
+  <p class="max-w-3xl text-[15px] font-normal leading-relaxed text-zinc-600 sm:text-base">
+    <ng-content select="[description]" />
+  </p>
+
+  @if (jumpLinks(); as links) {
+    @if (links.length > 0) {
+      <div class="mt-4 flex items-center gap-5 text-sm">
+        @for (link of links; track link.href) {
+          <a
+            [href]="link.href"
+            class="inline-flex items-center gap-1.5 font-semibold text-brand-700 hover:text-brand-500"
+          >
+            @switch (link.href) {
+              @case ('#gallery') {
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                  <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                  <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                  <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                </svg>
+              }
+              @case ('#api-reference') {
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke-linecap="round" stroke-linejoin="round" />
+                  <path
+                    d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              }
+              @default {
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M8 5v14l11-7L8 5Z" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              }
+            }
+            {{ link.label }}
+          </a>
+        }
+      </div>
+    }
+  }
+</div>

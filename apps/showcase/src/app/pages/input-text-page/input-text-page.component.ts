@@ -5,21 +5,26 @@ import {
   signal,
   ViewEncapsulation,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HaInputText } from '@halolib-ui/angular/input-text';
 import type { HaInputTextSize } from '@halolib-ui/angular/input-text';
 import { HaBreadcrumb } from '@halolib-ui/angular/breadcrumb';
 import type { HaBreadcrumbItem } from '@halolib-ui/angular/breadcrumb';
 import { CodeBlockComponent } from '../../shared/code-block/code-block.component';
-
-/** One row of the real `HaInputText` Inputs API reference table. */
-interface ApiInput {
-  readonly name: string;
-  readonly type: string;
-  readonly default: string;
-  readonly description: string;
-}
+import {
+  ApiTableComponent,
+  type ShowcaseApiRow,
+} from '../../shared/showcase-shell/api-table/api-table.component';
+import {
+  PageFooterComponent,
+  type ShowcaseFooterLink,
+} from '../../shared/showcase-shell/page-footer/page-footer.component';
+import {
+  PageHeaderComponent,
+  type ShowcaseJumpLink,
+} from '../../shared/showcase-shell/page-header/page-header.component';
+import { PlaygroundComponent } from '../../shared/showcase-shell/playground/playground.component';
+import { SectionComponent } from '../../shared/showcase-shell/section/section.component';
 
 /**
  * Showcase playground for `input[ha-input-text]` (`libs/input-text`): sizes,
@@ -29,7 +34,17 @@ interface ApiInput {
 @Component({
   selector: 'app-input-text-page',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, HaInputText, HaBreadcrumb, CodeBlockComponent],
+  imports: [
+    ReactiveFormsModule,
+    HaInputText,
+    HaBreadcrumb,
+    CodeBlockComponent,
+    SectionComponent,
+    PlaygroundComponent,
+    ApiTableComponent,
+    PageHeaderComponent,
+    PageFooterComponent,
+  ],
   templateUrl: './input-text-page.component.html',
   styleUrl: './input-text-page.component.css',
   encapsulation: ViewEncapsulation.None,
@@ -45,7 +60,7 @@ export class InputTextPageComponent {
   protected readonly sizes: readonly HaInputTextSize[] = ['sm', 'md', 'lg'];
 
   /** The real 6-input `HaInputText` API surface — no more, no less. */
-  protected readonly apiInputs: readonly ApiInput[] = [
+  protected readonly apiInputs: readonly ShowcaseApiRow[] = [
     { name: 'size', type: `'sm' | 'md' | 'lg'`, default: `'md'`, description: 'Tamaño del input.' },
     {
       name: 'disabled',
@@ -80,6 +95,25 @@ export class InputTextPageComponent {
         'Ids separados por coma para `aria-describedby` (p. ej. tu propio hint o mensaje de error).',
     },
   ];
+
+  protected readonly jumpLinks: ShowcaseJumpLink[] = [
+    { href: '#playground', label: 'Playground' },
+    { href: '#api-reference', label: 'API Docs' },
+  ];
+
+  protected readonly prevLink: ShowcaseFooterLink = {
+    path: '/componentes/boton',
+    label: 'Botón',
+    hint: 'Anterior',
+    icon: 'prev',
+  };
+
+  protected readonly nextLink: ShowcaseFooterLink = {
+    path: '/componentes/select',
+    label: 'Select',
+    hint: 'Siguiente',
+    icon: 'next',
+  };
 
   // --- Interactive Playground state (Section 1) ---
 

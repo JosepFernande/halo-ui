@@ -1,7 +1,7 @@
 <div class="app-shell">
   <button
     type="button"
-    class="app-menu-toggle fixed top-4 right-4 z-[60] flex h-10 w-10 items-center justify-center rounded-xl border border-surface-border bg-surface-card shadow-soft-airy md:hidden"
+    class="app-menu-toggle fixed top-4 right-4 z-60 flex h-10 w-10 items-center justify-center rounded-xl border border-surface-border bg-surface-card shadow-soft-airy md:hidden"
     [attr.aria-expanded]="sidebarOpen()"
     aria-controls="app-sidebar-nav"
     aria-label="Abrir menú de navegación"
@@ -19,7 +19,7 @@
   <app-sidebar
     id="app-sidebar-nav"
     brandTitle="halo-ui"
-    brandSubtitle="v19.2.0"
+    [brandSubtitle]="libraryVersion"
     [open]="sidebarOpen()"
     (linkClicked)="closeSidebar()"
   />

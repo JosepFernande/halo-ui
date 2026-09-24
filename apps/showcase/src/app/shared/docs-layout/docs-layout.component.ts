@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, signal, ViewEncapsulation } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
+import { LIBRARY_VERSION } from '../../const/library-version';
 
 /** Docs-only chrome: sidebar nav + router outlet wrapping the install/config/component playground routes. */
 @Component({
@@ -13,8 +14,8 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DocsLayoutComponent {
-  /** Whether the mobile drawer sidebar is open. Ignored at/above the `md` breakpoint, where the sidebar is always visible. */
   protected readonly sidebarOpen = signal(false);
+  protected readonly libraryVersion = LIBRARY_VERSION;
 
   protected toggleSidebar(): void {
     this.sidebarOpen.update((open) => !open);

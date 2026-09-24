@@ -7,13 +7,26 @@ import {
   signal,
   ViewEncapsulation,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { HA_ICON_NAMES, HaIcon } from '@halolib-ui/angular/icon';
 import type { HaIconName, HaIconSize } from '@halolib-ui/angular/icon';
 import { HaBreadcrumb } from '@halolib-ui/angular/breadcrumb';
 import type { HaBreadcrumbItem } from '@halolib-ui/angular/breadcrumb';
 import { HA_ICON_SIZE_SCALE } from '@halolib-ui/angular/core';
 import { CodeBlockComponent } from '../../shared/code-block/code-block.component';
+import {
+  ApiTableComponent,
+  type ShowcaseApiRow,
+} from '../../shared/showcase-shell/api-table/api-table.component';
+import {
+  PageFooterComponent,
+  type ShowcaseFooterLink,
+} from '../../shared/showcase-shell/page-footer/page-footer.component';
+import {
+  PageHeaderComponent,
+  type ShowcaseJumpLink,
+} from '../../shared/showcase-shell/page-header/page-header.component';
+import { PlaygroundComponent } from '../../shared/showcase-shell/playground/playground.component';
+import { SectionComponent } from '../../shared/showcase-shell/section/section.component';
 
 /** One real `size` value with its pixel dimension, read straight from `HA_ICON_SIZE_SCALE`. */
 interface SizeInfo {
@@ -21,19 +34,20 @@ interface SizeInfo {
   readonly px: string;
 }
 
-/** One row of the real `HaIcon` Inputs API reference table. */
-interface ApiInput {
-  readonly name: string;
-  readonly type: string;
-  readonly default: string;
-  readonly description: string;
-}
-
 /** Showcase playground for `ha-icon` (`libs/halo-ui/icon`): a Lucide-based, token-sized, currentColor-driven icon wrapper. */
 @Component({
   selector: 'app-icon-page',
   standalone: true,
-  imports: [RouterLink, HaIcon, HaBreadcrumb, CodeBlockComponent],
+  imports: [
+    HaIcon,
+    HaBreadcrumb,
+    CodeBlockComponent,
+    SectionComponent,
+    PlaygroundComponent,
+    ApiTableComponent,
+    PageHeaderComponent,
+    PageFooterComponent,
+  ],
   templateUrl: './icon-page.component.html',
   styleUrl: './icon-page.component.css',
   encapsulation: ViewEncapsulation.None,
@@ -56,7 +70,7 @@ export class IconPageComponent {
   }));
 
   /** The real 6-input `HaIcon` API surface — no more, no less. There is no `color` input: color is 100% inherited via `currentColor`. */
-  protected readonly apiInputs: readonly ApiInput[] = [
+  protected readonly apiInputs: readonly ShowcaseApiRow[] = [
     {
       name: 'name',
       type: 'HaIconName',
@@ -101,6 +115,26 @@ export class IconPageComponent {
 
   /** Full sorted list of real icon names — source of truth for the gallery below. */
   protected readonly allIconNames: readonly HaIconName[] = HA_ICON_NAMES;
+
+  protected readonly jumpLinks: ShowcaseJumpLink[] = [
+    { href: '#playground', label: 'Playground' },
+    { href: '#gallery', label: 'Galería' },
+    { href: '#api-reference', label: 'API Docs' },
+  ];
+
+  protected readonly prevLink: ShowcaseFooterLink = {
+    path: '/componentes/select',
+    label: 'Select',
+    hint: 'Anterior',
+    icon: 'prev',
+  };
+
+  protected readonly nextLink: ShowcaseFooterLink = {
+    path: '/',
+    label: 'Volver al inicio',
+    hint: 'Fin del recorrido',
+    icon: 'home',
+  };
 
   // --- Interactive Playground state (Section 1) ---
 

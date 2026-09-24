@@ -5,21 +5,26 @@ import {
   signal,
   ViewEncapsulation,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HaSelect } from '@halolib-ui/angular/select';
 import type { HaSelectOption, HaSelectSize } from '@halolib-ui/angular/select';
 import { HaBreadcrumb } from '@halolib-ui/angular/breadcrumb';
 import type { HaBreadcrumbItem } from '@halolib-ui/angular/breadcrumb';
 import { CodeBlockComponent } from '../../shared/code-block/code-block.component';
-
-/** One row of the real `HaSelect` Inputs API reference table. */
-interface ApiInput {
-  readonly name: string;
-  readonly type: string;
-  readonly default: string;
-  readonly description: string;
-}
+import {
+  ApiTableComponent,
+  type ShowcaseApiRow,
+} from '../../shared/showcase-shell/api-table/api-table.component';
+import {
+  PageFooterComponent,
+  type ShowcaseFooterLink,
+} from '../../shared/showcase-shell/page-footer/page-footer.component';
+import {
+  PageHeaderComponent,
+  type ShowcaseJumpLink,
+} from '../../shared/showcase-shell/page-header/page-header.component';
+import { PlaygroundComponent } from '../../shared/showcase-shell/playground/playground.component';
+import { SectionComponent } from '../../shared/showcase-shell/section/section.component';
 
 /** One row of the real `HaSelect` Outputs API reference table. */
 interface ApiOutput {
@@ -37,7 +42,17 @@ interface ApiOutput {
 @Component({
   selector: 'app-select-page',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, HaSelect, HaBreadcrumb, CodeBlockComponent],
+  imports: [
+    ReactiveFormsModule,
+    HaSelect,
+    HaBreadcrumb,
+    CodeBlockComponent,
+    SectionComponent,
+    PlaygroundComponent,
+    ApiTableComponent,
+    PageHeaderComponent,
+    PageFooterComponent,
+  ],
   templateUrl: './select-page.component.html',
   styleUrl: './select-page.component.css',
   encapsulation: ViewEncapsulation.None,
@@ -61,7 +76,7 @@ export class SelectPageComponent {
   ];
 
   /** The real 7-input `HaSelect` API surface — no more, no less. */
-  protected readonly apiInputs: readonly ApiInput[] = [
+  protected apiInputs: readonly ShowcaseApiRow[] = [
     {
       name: 'options',
       type: 'HaSelectOption[]',
@@ -128,6 +143,25 @@ export class SelectPageComponent {
         'Emite exactamente una vez por cada transición de cierre del panel (click afuera, Escape, blur o cierre programático) — incluso cuando Escape cancela sin comprometer valor.',
     },
   ];
+
+  protected readonly jumpLinks: ShowcaseJumpLink[] = [
+    { href: '#playground', label: 'Playground' },
+    { href: '#api-reference', label: 'API Docs' },
+  ];
+
+  protected readonly prevLink: ShowcaseFooterLink = {
+    path: '/componentes/input-text',
+    label: 'InputText',
+    hint: 'Anterior',
+    icon: 'prev',
+  };
+
+  protected readonly nextLink: ShowcaseFooterLink = {
+    path: '/',
+    label: 'Volver al inicio',
+    hint: 'Fin del recorrido',
+    icon: 'home',
+  };
 
   // --- Interactive Playground state (Section 1) ---
 

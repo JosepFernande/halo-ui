@@ -1,138 +1,76 @@
-<ha-breadcrumb [items]="breadcrumbItems" class="mb-6" />
-
-<div class="mb-10 border-b border-surface-border pb-6">
-  <div class="mb-3 flex flex-wrap items-center gap-3">
-    <code class="rounded-lg bg-zinc-900 px-3 py-1.5 font-mono text-lg font-bold text-white sm:text-xl"
-      >&lt;input ha-input-text&gt;</code
-    >
-    <span class="rounded-full bg-green-50 px-2.5 py-1 text-xs font-semibold text-green-700">Estable</span>
-    <span class="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700">v19.2.0</span>
-    <span class="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700"
-      >Angular Forms nativo</span
-    >
-    <span class="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-semibold text-zinc-600">Angular 19.2+</span>
-  </div>
-  <p class="max-w-3xl text-[15px] font-normal leading-relaxed text-zinc-600 sm:text-base">
+<app-showcase-page-header selector="<input ha-input-text>" statusBadge="Angular Forms nativo" [jumpLinks]="jumpLinks">
+  <ha-breadcrumb breadcrumb [items]="breadcrumbItems" class="mb-6" />
+  <ng-container description>
     Campo de texto accesible y token-driven, aplicado como atributo sobre un
     <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">&lt;input&gt;</code> nativo. Soporta
     tamaños, estado deshabilitado/solo lectura, y expone un estado de error 100% automático a partir del
     <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">FormControl</code> que le conectes.
-  </p>
-  <div class="mt-4 flex items-center gap-5 text-sm">
-    <a href="#playground" class="inline-flex items-center gap-1.5 font-semibold text-brand-700 hover:text-brand-500">
-      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M8 5v14l11-7L8 5Z" stroke-linecap="round" stroke-linejoin="round" />
-      </svg>
-      Playground
-    </a>
-    <a href="#api-reference" class="inline-flex items-center gap-1.5 font-semibold text-brand-700 hover:text-brand-500">
-      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke-linecap="round" stroke-linejoin="round" />
-        <path
-          d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </svg>
-      API Docs
-    </a>
-  </div>
-</div>
+  </ng-container>
+</app-showcase-page-header>
 
 <!-- SECTION 1: Interactive Playground -->
-<section id="playground" class="mb-14 scroll-mt-6">
-  <h2 class="mb-6 text-2xl font-bold text-zinc-900">Playground interactivo</h2>
+<app-showcase-playground [activeTab]="activeTab()" [code]="generatedCode()" (tabChange)="activeTab.set($event)">
+  <div preview class="flex min-h-32 items-center justify-center rounded-xl bg-surface-base p-6">
+    <input
+      ha-input-text
+      [size]="selectedSize()"
+      [disabled]="withDisabled()"
+      [readonly]="withReadonly()"
+      placeholder="Escribí algo"
+      class="w-full max-w-sm"
+    />
+  </div>
 
-  <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
-    <div class="rounded-2xl border border-surface-border bg-white shadow-sm">
-      <div class="flex items-center gap-1 border-b border-surface-border p-2">
-        <button
-          type="button"
-          class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
-          [class]="activeTab() === 'preview' ? 'bg-surface-base text-brand-700' : 'text-zinc-500 hover:text-zinc-700'"
-          (click)="activeTab.set('preview')"
-        >
-          Vista previa
-        </button>
-        <button
-          type="button"
-          class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
-          [class]="activeTab() === 'code' ? 'bg-surface-base text-brand-700' : 'text-zinc-500 hover:text-zinc-700'"
-          (click)="activeTab.set('code')"
-        >
-          Código
-        </button>
-      </div>
-
-      <div class="p-8">
-        @if (activeTab() === 'preview') {
-          <div class="flex min-h-32 items-center justify-center rounded-xl bg-surface-base p-6">
-            <input
-              ha-input-text
-              [size]="selectedSize()"
-              [disabled]="withDisabled()"
-              [readonly]="withReadonly()"
-              placeholder="Escribí algo"
-              class="w-full max-w-sm"
-            />
-          </div>
-        } @else {
-          <app-code-block label="Resultado" language="html" [code]="generatedCode()" />
+  <ng-container controls>
+    <div>
+      <span class="mb-2 block text-[11px] font-bold uppercase tracking-wider text-zinc-500">Size</span>
+      <div class="flex flex-wrap gap-2">
+        @for (s of sizes; track s) {
+          <button
+            type="button"
+            class="rounded-full border px-3 py-1.5 text-xs font-semibold uppercase transition-all"
+            [class]="
+              selectedSize() === s
+                ? 'border-brand-700 bg-brand-700 text-white'
+                : 'border-surface-border bg-white text-zinc-600 hover:border-brand-600/40'
+            "
+            (click)="selectedSize.set(s)"
+          >
+            {{ s }}
+          </button>
         }
       </div>
     </div>
 
-    <div class="flex flex-col gap-5 rounded-2xl border border-surface-border bg-white p-5 shadow-sm">
-      <div>
-        <span class="mb-2 block text-[11px] font-bold uppercase tracking-wider text-zinc-500">Size</span>
-        <div class="flex flex-wrap gap-2">
-          @for (s of sizes; track s) {
-            <button
-              type="button"
-              class="rounded-full border px-3 py-1.5 text-xs font-semibold uppercase transition-all"
-              [class]="
-                selectedSize() === s
-                  ? 'border-brand-700 bg-brand-700 text-white'
-                  : 'border-surface-border bg-white text-zinc-600 hover:border-brand-600/40'
-              "
-              (click)="selectedSize.set(s)"
-            >
-              {{ s }}
-            </button>
-          }
-        </div>
-      </div>
-
-      <div class="flex flex-col gap-2 border-t border-surface-border pt-4">
-        <label class="flex items-center gap-2 text-xs font-semibold text-zinc-700">
-          <input
-            type="checkbox"
-            class="h-4 w-4 rounded border-surface-borderstrong text-brand-700 focus:ring-brand-700"
-            [checked]="withDisabled()"
-            (change)="onDisabledToggle($event)"
-          />
-          disabled
-        </label>
-        <label class="flex items-center gap-2 text-xs font-semibold text-zinc-700">
-          <input
-            type="checkbox"
-            class="h-4 w-4 rounded border-surface-borderstrong text-brand-700 focus:ring-brand-700"
-            [checked]="withReadonly()"
-            (change)="onReadonlyToggle($event)"
-          />
-          readonly
-        </label>
-      </div>
-
-      <p class="border-t border-surface-border pt-4 text-[11px] leading-relaxed text-zinc-500">
-        No hay toggle de <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">prefix</code>,
-        <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">clearable</code> ni
-        <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">required</code> porque
-        <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">HaInputText</code> no los expone —
-        estos 3 controles son toda la superficie real del componente.
-      </p>
+    <div class="flex flex-col gap-2 border-t border-surface-border pt-4">
+      <label class="flex items-center gap-2 text-xs font-semibold text-zinc-700">
+        <input
+          type="checkbox"
+          class="h-4 w-4 rounded border-surface-borderstrong text-brand-700 focus:ring-brand-700"
+          [checked]="withDisabled()"
+          (change)="onDisabledToggle($event)"
+        />
+        disabled
+      </label>
+      <label class="flex items-center gap-2 text-xs font-semibold text-zinc-700">
+        <input
+          type="checkbox"
+          class="h-4 w-4 rounded border-surface-borderstrong text-brand-700 focus:ring-brand-700"
+          [checked]="withReadonly()"
+          (change)="onReadonlyToggle($event)"
+        />
+        readonly
+      </label>
     </div>
-  </div>
+
+    <p class="border-t border-surface-border pt-4 text-[11px] leading-relaxed text-zinc-500">
+      No hay toggle de <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">prefix</code>,
+      <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">clearable</code> ni
+      <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">required</code> porque
+      <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">HaInputText</code> no los expone —
+      estos 3 controles son toda la superficie real del componente.
+    </p>
+  </ng-container>
 
   <div class="mt-6 rounded-2xl border border-surface-border bg-white p-6 shadow-sm">
     <h3 class="mb-1 text-sm font-bold text-zinc-900">Validación real con Angular Forms</h3>
@@ -183,12 +121,10 @@
       }
     </div>
   </div>
-</section>
+</app-showcase-playground>
 
-<!-- SECTION 2: Arquitectura real (reframed "Anatomía" — no fictional slots) -->
-<section class="mb-14">
-  <h2 class="mb-6 text-2xl font-bold text-zinc-900">Arquitectura real</h2>
-
+<!-- SECTION 2: Arquitectura real -->
+<app-showcase-section heading="Arquitectura real">
   <div class="grid gap-4 sm:grid-cols-2">
     <div class="rounded-2xl border border-surface-border bg-white p-6 shadow-sm">
       <h3 class="mb-2 text-sm font-bold text-zinc-900">El host ES el &lt;input&gt; nativo</h3>
@@ -272,11 +208,10 @@
       </div>
     </div>
   </div>
-</section>
+</app-showcase-section>
 
 <!-- SECTION 2b: Estados reales -->
-<section class="mb-14">
-  <h2 class="mb-6 text-2xl font-bold text-zinc-900">Estados reales</h2>
+<app-showcase-section heading="Estados reales">
   <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
     <div class="flex flex-col gap-3 rounded-2xl border border-surface-border bg-white p-5 shadow-sm">
       <input ha-input-text placeholder="Reposo" />
@@ -306,14 +241,11 @@
       >
     </div>
   </div>
-</section>
+</app-showcase-section>
 
 <!-- SECTION 3: Integración -->
-<section class="mb-14">
-  <h2 class="mb-6 text-2xl font-bold text-zinc-900">Integración</h2>
-
+<app-showcase-section heading="Integración">
   <div class="flex flex-col gap-4">
-    <app-code-block label="Instalación" language="bash" code="npm install &#64;halolib-ui/angular &#64;angular/cdk" />
     <app-code-block
       label="Importación"
       language="typescript"
@@ -370,66 +302,39 @@ export class UserProfileEmailFieldComponent {
 }'
     />
   </div>
-</section>
+</app-showcase-section>
 
 <!-- SECTION 4: API Reference -->
-<section id="api-reference" class="mb-14 scroll-mt-6">
-  <h2 class="mb-6 text-2xl font-bold text-zinc-900">API Reference</h2>
-
-  <h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-500">Inputs</h3>
-  <div class="mb-8 overflow-x-auto rounded-2xl border border-surface-border bg-white shadow-sm">
-    <table class="w-full text-left text-sm">
-      <thead
-        class="border-b border-surface-border bg-surface-base text-[11px] font-bold uppercase tracking-wider text-zinc-500"
+<app-showcase-section id="api-reference">
+  <app-showcase-api-table [rows]="apiInputs">
+    <h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-500">Outputs</h3>
+    <p class="mb-8 max-w-3xl text-sm leading-relaxed text-zinc-600">
+      No expone <code class="rounded bg-zinc-100 px-1.5 py-0.5 text-[0.9em] text-brand-700">&#64;Output()</code> propios
+      — la integración es vía
+      <code class="rounded bg-zinc-100 px-1.5 py-0.5 text-[0.9em] text-brand-700">ControlValueAccessor</code> (<code
+        class="rounded bg-zinc-100 px-1.5 py-0.5 text-[0.9em] text-brand-700"
+        >[formControl]</code
       >
-        <tr>
-          <th class="px-4 py-3">Input</th>
-          <th class="px-4 py-3">Tipo</th>
-          <th class="px-4 py-3">Default</th>
-          <th class="px-4 py-3">Descripción</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-surface-border">
-        @for (row of apiInputs; track row.name) {
-          <tr>
-            <td class="px-4 py-3 font-mono text-xs font-semibold text-brand-700">{{ row.name }}</td>
-            <td class="px-4 py-3 font-mono text-xs text-zinc-600">{{ row.type }}</td>
-            <td class="px-4 py-3 font-mono text-xs text-zinc-600">{{ row.default }}</td>
-            <td class="px-4 py-3 text-xs text-zinc-600">{{ row.description }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  </div>
+      / <code class="rounded bg-zinc-100 px-1.5 py-0.5 text-[0.9em] text-brand-700">[(ngModel)]</code>), igual que
+      cualquier <code class="rounded bg-zinc-100 px-1.5 py-0.5 text-[0.9em] text-brand-700">&lt;input&gt;</code> nativo
+      envuelto en Angular Forms.
+    </p>
 
-  <h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-500">Outputs</h3>
-  <p class="mb-8 max-w-3xl text-sm leading-relaxed text-zinc-600">
-    No expone <code class="rounded bg-zinc-100 px-1.5 py-0.5 text-[0.9em] text-brand-700">&#64;Output()</code> propios —
-    la integración es vía
-    <code class="rounded bg-zinc-100 px-1.5 py-0.5 text-[0.9em] text-brand-700">ControlValueAccessor</code> (<code
-      class="rounded bg-zinc-100 px-1.5 py-0.5 text-[0.9em] text-brand-700"
-      >[formControl]</code
-    >
-    / <code class="rounded bg-zinc-100 px-1.5 py-0.5 text-[0.9em] text-brand-700">[(ngModel)]</code>), igual que
-    cualquier <code class="rounded bg-zinc-100 px-1.5 py-0.5 text-[0.9em] text-brand-700">&lt;input&gt;</code> nativo
-    envuelto en Angular Forms.
-  </p>
-
-  <h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-500">Slots</h3>
-  <p class="max-w-3xl text-sm leading-relaxed text-zinc-600">
-    No hay content projection: el componente no tiene
-    <code class="rounded bg-zinc-100 px-1.5 py-0.5 text-[0.9em] text-brand-700">template</code> propio (<code
-      class="rounded bg-zinc-100 px-1.5 py-0.5 text-[0.9em] text-brand-700"
-      >template: ''</code
-    >), así que no puede proyectar
-    <code class="rounded bg-zinc-100 px-1.5 py-0.5 text-[0.9em] text-brand-700">&lt;ng-content&gt;</code>. No existen
-    slots de prefix/suffix.
-  </p>
-</section>
+    <h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-500">Slots</h3>
+    <p class="max-w-3xl text-sm leading-relaxed text-zinc-600">
+      No hay content projection: el componente no tiene
+      <code class="rounded bg-zinc-100 px-1.5 py-0.5 text-[0.9em] text-brand-700">template</code> propio (<code
+        class="rounded bg-zinc-100 px-1.5 py-0.5 text-[0.9em] text-brand-700"
+        >template: ''</code
+      >), así que no puede proyectar
+      <code class="rounded bg-zinc-100 px-1.5 py-0.5 text-[0.9em] text-brand-700">&lt;ng-content&gt;</code>. No existen
+      slots de prefix/suffix.
+    </p>
+  </app-showcase-api-table>
+</app-showcase-section>
 
 <!-- SECTION 5: Accesibilidad & Tokens -->
-<section class="mb-14">
-  <h2 class="mb-6 text-2xl font-bold text-zinc-900">Accesibilidad &amp; Tokens</h2>
+<app-showcase-section heading="Accesibilidad &amp; Tokens">
   <div class="grid gap-4 sm:grid-cols-3">
     <div class="flex items-start gap-3 rounded-2xl border border-surface-border bg-white p-5 shadow-sm">
       <span class="mt-0.5 shrink-0 text-brand-700" aria-hidden="true">
@@ -493,52 +398,6 @@ export class UserProfileEmailFieldComponent {
       </div>
     </div>
   </div>
-</section>
+</app-showcase-section>
 
-<div class="mt-4 flex items-center justify-between border-t border-surface-border pb-12 pt-4">
-  <a
-    routerLink="/componentes/boton"
-    class="group flex items-center gap-3 rounded-2xl border border-surface-border bg-white px-6 py-3 shadow-sm transition-all hover:border-brand-600/40 hover:shadow"
-  >
-    <svg
-      class="h-4 w-4 text-zinc-400 transition-all group-hover:-translate-x-1 group-hover:text-brand-700"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      aria-hidden="true"
-    >
-      <line x1="19" x2="5" y1="12" y2="12" />
-      <polyline points="12 19 5 12 12 5" />
-    </svg>
-    <div>
-      <span class="block text-xs text-zinc-400">Anterior</span>
-      <span class="text-sm font-bold text-zinc-800 transition-colors group-hover:text-brand-700">Botón</span>
-    </div>
-  </a>
-
-  <a
-    routerLink="/componentes/select"
-    class="group flex items-center gap-3 rounded-2xl border border-surface-border bg-white px-6 py-3 shadow-sm transition-all hover:border-brand-600/40 hover:shadow"
-  >
-    <div class="text-right">
-      <span class="block text-xs text-zinc-400">Siguiente</span>
-      <span class="text-sm font-bold text-zinc-800 transition-colors group-hover:text-brand-700">Select</span>
-    </div>
-    <svg
-      class="h-4 w-4 text-zinc-400 transition-all group-hover:translate-x-1 group-hover:text-brand-700"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      aria-hidden="true"
-    >
-      <line x1="5" x2="19" y1="12" y2="12" />
-      <polyline points="12 5 19 12 12 19" />
-    </svg>
-  </a>
-</div>
+<app-showcase-page-footer [prevLink]="prevLink" [nextLink]="nextLink" />

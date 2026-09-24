@@ -5,13 +5,26 @@ import {
   signal,
   ViewEncapsulation,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { HaButton } from '@halolib-ui/angular/button';
 import type { HaButtonSize, HaButtonVariant } from '@halolib-ui/angular/button';
 import { HaBreadcrumb } from '@halolib-ui/angular/breadcrumb';
 import type { HaBreadcrumbItem } from '@halolib-ui/angular/breadcrumb';
 import { HA_BUTTON_DIMENSIONS } from '@halolib-ui/angular/core';
 import { CodeBlockComponent } from '../../shared/code-block/code-block.component';
+import {
+  ApiTableComponent,
+  type ShowcaseApiRow,
+} from '../../shared/showcase-shell/api-table/api-table.component';
+import {
+  PageFooterComponent,
+  type ShowcaseFooterLink,
+} from '../../shared/showcase-shell/page-footer/page-footer.component';
+import {
+  PageHeaderComponent,
+  type ShowcaseJumpLink,
+} from '../../shared/showcase-shell/page-header/page-header.component';
+import { PlaygroundComponent } from '../../shared/showcase-shell/playground/playground.component';
+import { SectionComponent } from '../../shared/showcase-shell/section/section.component';
 
 /** One real theme color usable via `[color]`, paired with its resolved hex for display. */
 interface ColorSwatch {
@@ -33,19 +46,20 @@ interface SizeInfo {
   readonly minWidth: string;
 }
 
-/** One row of the real `HaButton` Inputs API reference table. */
-interface ApiInput {
-  readonly name: string;
-  readonly type: string;
-  readonly default: string;
-  readonly description: string;
-}
-
 /** Showcase playground for `ha-button` (`libs/button`): variants, sizes, colors, and states. */
 @Component({
   selector: 'app-button-page',
   standalone: true,
-  imports: [RouterLink, HaButton, HaBreadcrumb, CodeBlockComponent],
+  imports: [
+    HaButton,
+    HaBreadcrumb,
+    CodeBlockComponent,
+    SectionComponent,
+    PlaygroundComponent,
+    ApiTableComponent,
+    PageHeaderComponent,
+    PageFooterComponent,
+  ],
   templateUrl: './button-page.component.html',
   styleUrl: './button-page.component.css',
   encapsulation: ViewEncapsulation.None,
@@ -99,7 +113,7 @@ export class ButtonPageComponent {
   }));
 
   /** The real 6-input `HaButton` API surface — no more, no less. */
-  protected readonly apiInputs: readonly ApiInput[] = [
+  protected readonly apiInputs: readonly ShowcaseApiRow[] = [
     {
       name: 'variant',
       type: `'solid' | 'outline' | 'ghost'`,
@@ -127,6 +141,25 @@ export class ButtonPageComponent {
       description: 'Atributo `type` nativo del botón.',
     },
   ];
+
+  protected readonly jumpLinks: ShowcaseJumpLink[] = [
+    { href: '#playground', label: 'Playground' },
+    { href: '#api-reference', label: 'API Docs' },
+  ];
+
+  protected readonly prevLink: ShowcaseFooterLink = {
+    path: '/configuracion',
+    label: 'Configuración',
+    hint: 'Anterior',
+    icon: 'prev',
+  };
+
+  protected readonly nextLink: ShowcaseFooterLink = {
+    path: '/componentes/input-text',
+    label: 'InputText',
+    hint: 'Siguiente',
+    icon: 'next',
+  };
 
   // --- Interactive Playground state (Section 1) ---
 

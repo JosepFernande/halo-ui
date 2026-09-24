@@ -1,0 +1,6 @@
+<section [id]="id()" class="mb-14" [class.scroll-mt-6]="id()">
+  @if (heading()) {
+    <h2 class="mb-6 text-2xl font-bold text-zinc-900">{{ heading() }}</h2>
+  }
+  <ng-content />
+</section>

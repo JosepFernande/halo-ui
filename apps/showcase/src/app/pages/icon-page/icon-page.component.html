@@ -1,172 +1,104 @@
-<ha-breadcrumb [items]="breadcrumbItems" class="mb-6" />
-
-<div class="mb-10 border-b border-surface-border pb-6">
-  <div class="mb-3 flex flex-wrap items-center gap-3">
-    <code class="rounded-lg bg-zinc-900 px-3 py-1.5 font-mono text-lg font-bold text-white sm:text-xl"
-      >&lt;ha-icon /&gt;</code
-    >
-    <span class="rounded-full bg-green-50 px-2.5 py-1 text-xs font-semibold text-green-700">Estable</span>
-    <span class="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700">v19.2.0</span>
-    <span class="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">Signals Ready</span>
-  </div>
-  <p class="max-w-3xl text-[15px] font-normal leading-relaxed text-zinc-600 sm:text-base">
+<app-showcase-page-header selector="<ha-icon />" statusBadge="Signals Ready" [jumpLinks]="jumpLinks">
+  <ha-breadcrumb breadcrumb [items]="breadcrumbItems" class="mb-6" />
+  <ng-container description>
     Envoltorio token-driven sobre Lucide: un ícono por
-    <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">name</code>
-    (slug kebab-case curado, no un import de ícono suelto), tres tamaños reales,
+    <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">name</code> (slug kebab-case curado, no
+    un import de ícono suelto), tres tamaños reales,
     <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">strokeWidth</code> y
     <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">nonScalingStroke</code> configurables, y
     color 100% heredado vía
     <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">currentColor</code> — sin input
     <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">color</code> propio.
-  </p>
-  <div class="mt-4 flex items-center gap-5 text-sm">
-    <a href="#playground" class="inline-flex items-center gap-1.5 font-semibold text-brand-700 hover:text-brand-500">
-      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M8 5v14l11-7L8 5Z" stroke-linecap="round" stroke-linejoin="round" />
-      </svg>
-      Playground
-    </a>
-    <a href="#gallery" class="inline-flex items-center gap-1.5 font-semibold text-brand-700 hover:text-brand-500">
-      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="3" y="3" width="7" height="7" rx="1.5" />
-        <rect x="14" y="3" width="7" height="7" rx="1.5" />
-        <rect x="14" y="14" width="7" height="7" rx="1.5" />
-        <rect x="3" y="14" width="7" height="7" rx="1.5" />
-      </svg>
-      Galería
-    </a>
-    <a href="#api-reference" class="inline-flex items-center gap-1.5 font-semibold text-brand-700 hover:text-brand-500">
-      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke-linecap="round" stroke-linejoin="round" />
-        <path
-          d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </svg>
-      API Docs
-    </a>
-  </div>
-</div>
+  </ng-container>
+</app-showcase-page-header>
 
 <!-- SECTION 1: Interactive Playground -->
-<section id="playground" class="mb-14 scroll-mt-6">
-  <h2 class="mb-6 text-2xl font-bold text-zinc-900">Playground interactivo</h2>
+<app-showcase-playground [activeTab]="activeTab()" [code]="generatedCode()" (tabChange)="activeTab.set($event)">
+  <div preview class="flex min-h-32 flex-col items-center justify-center gap-3 rounded-xl bg-surface-base">
+    <ha-icon
+      [name]="selectedIcon()"
+      [size]="selectedSize()"
+      [strokeWidth]="selectedStrokeWidth()"
+      [nonScalingStroke]="selectedNonScalingStroke()"
+      [title]="selectedTitle()"
+    />
+    <span class="font-mono text-xs font-semibold text-zinc-600">{{ selectedIcon() }}</span>
+  </div>
 
-  <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
-    <div class="rounded-2xl border border-surface-border bg-white shadow-sm">
-      <div class="flex items-center gap-1 border-b border-surface-border p-2">
-        <button
-          type="button"
-          class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
-          [class]="activeTab() === 'preview' ? 'bg-surface-base text-brand-700' : 'text-zinc-500 hover:text-zinc-700'"
-          (click)="activeTab.set('preview')"
-        >
-          Vista previa
-        </button>
-        <button
-          type="button"
-          class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
-          [class]="activeTab() === 'code' ? 'bg-surface-base text-brand-700' : 'text-zinc-500 hover:text-zinc-700'"
-          (click)="activeTab.set('code')"
-        >
-          Código
-        </button>
-      </div>
+  <ng-container controls>
+    <div>
+      <span class="mb-2 block text-[11px] font-bold uppercase tracking-wider text-zinc-500">Ícono</span>
+      <span class="block truncate font-mono text-xs font-semibold text-zinc-800">{{ selectedIcon() }}</span>
+      <p class="mt-1 text-[11px] leading-relaxed text-zinc-500">Elegí uno en la galería de abajo.</p>
+    </div>
 
-      <div class="p-8">
-        @if (activeTab() === 'preview') {
-          <div class="flex min-h-32 flex-col items-center justify-center gap-3 rounded-xl bg-surface-base">
-            <ha-icon
-              [name]="selectedIcon()"
-              [size]="selectedSize()"
-              [strokeWidth]="selectedStrokeWidth()"
-              [nonScalingStroke]="selectedNonScalingStroke()"
-              [title]="selectedTitle()"
-            />
-            <span class="font-mono text-xs font-semibold text-zinc-600">{{ selectedIcon() }}</span>
-          </div>
-        } @else {
-          <app-code-block label="Resultado" language="html" [code]="generatedCode()" />
+    <div>
+      <span class="mb-2 block text-[11px] font-bold uppercase tracking-wider text-zinc-500">Size</span>
+      <div class="flex flex-wrap gap-2">
+        @for (s of sizes; track s) {
+          <button
+            type="button"
+            class="rounded-full border px-3 py-1.5 text-xs font-semibold uppercase transition-all"
+            [class]="
+              selectedSize() === s
+                ? 'border-brand-700 bg-brand-700 text-white'
+                : 'border-surface-border bg-white text-zinc-600 hover:border-brand-600/40'
+            "
+            (click)="selectedSize.set(s)"
+          >
+            {{ s }}
+          </button>
         }
       </div>
     </div>
 
-    <div class="flex flex-col gap-5 rounded-2xl border border-surface-border bg-white p-5 shadow-sm">
-      <div>
-        <span class="mb-2 block text-[11px] font-bold uppercase tracking-wider text-zinc-500">Ícono</span>
-        <span class="block truncate font-mono text-xs font-semibold text-zinc-800">{{ selectedIcon() }}</span>
-        <p class="mt-1 text-[11px] leading-relaxed text-zinc-500">Elegí uno en la galería de abajo.</p>
-      </div>
-
-      <div>
-        <span class="mb-2 block text-[11px] font-bold uppercase tracking-wider text-zinc-500">Size</span>
-        <div class="flex flex-wrap gap-2">
-          @for (s of sizes; track s) {
-            <button
-              type="button"
-              class="rounded-full border px-3 py-1.5 text-xs font-semibold uppercase transition-all"
-              [class]="
-                selectedSize() === s
-                  ? 'border-brand-700 bg-brand-700 text-white'
-                  : 'border-surface-border bg-white text-zinc-600 hover:border-brand-600/40'
-              "
-              (click)="selectedSize.set(s)"
-            >
-              {{ s }}
-            </button>
-          }
-        </div>
-      </div>
-
-      <div>
-        <label
-          class="mb-2 flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-zinc-500"
-        >
-          <span>strokeWidth</span>
-          <span class="font-mono normal-case text-zinc-600">{{ selectedStrokeWidth() }}</span>
-        </label>
-        <input
-          type="range"
-          min="0.5"
-          max="4"
-          step="0.5"
-          [value]="selectedStrokeWidth()"
-          (input)="onStrokeWidthInput($event)"
-          class="w-full accent-brand-700"
-        />
-      </div>
-
-      <div>
-        <label class="flex items-center gap-2 text-xs font-medium text-zinc-700">
-          <input
-            type="checkbox"
-            [checked]="selectedNonScalingStroke()"
-            (change)="onNonScalingStrokeToggle($event)"
-            class="h-4 w-4 rounded border-surface-border text-brand-700 focus:ring-brand-700/30"
-          />
-          nonScalingStroke
-        </label>
-      </div>
-
-      <div>
-        <span class="mb-2 block text-[11px] font-bold uppercase tracking-wider text-zinc-500">title (opcional)</span>
-        <input
-          type="text"
-          [value]="selectedTitle()"
-          (input)="onTitleInput($event)"
-          placeholder="Sin título"
-          class="w-full rounded-xl border border-surface-border bg-white px-3 py-1.5 text-xs text-zinc-800 placeholder:text-zinc-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-700/20"
-        />
-      </div>
-
-      <p class="border-t border-surface-border pt-4 text-[11px] leading-relaxed text-zinc-500">
-        No hay selector de <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">color</code> —
-        <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">HaIcon</code> no expone ese input. El
-        color se hereda 100% vía CSS, mirá el ejemplo debajo.
-      </p>
+    <div>
+      <label
+        class="mb-2 flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-zinc-500"
+      >
+        <span>strokeWidth</span>
+        <span class="font-mono normal-case text-zinc-600">{{ selectedStrokeWidth() }}</span>
+      </label>
+      <input
+        type="range"
+        min="0.5"
+        max="4"
+        step="0.5"
+        [value]="selectedStrokeWidth()"
+        (input)="onStrokeWidthInput($event)"
+        class="w-full accent-brand-700"
+      />
     </div>
-  </div>
+
+    <div>
+      <label class="flex items-center gap-2 text-xs font-medium text-zinc-700">
+        <input
+          type="checkbox"
+          [checked]="selectedNonScalingStroke()"
+          (change)="onNonScalingStrokeToggle($event)"
+          class="h-4 w-4 rounded border-surface-border text-brand-700 focus:ring-brand-700/30"
+        />
+        nonScalingStroke
+      </label>
+    </div>
+
+    <div>
+      <span class="mb-2 block text-[11px] font-bold uppercase tracking-wider text-zinc-500">title (opcional)</span>
+      <input
+        type="text"
+        [value]="selectedTitle()"
+        (input)="onTitleInput($event)"
+        placeholder="Sin título"
+        class="w-full rounded-xl border border-surface-border bg-white px-3 py-1.5 text-xs text-zinc-800 placeholder:text-zinc-400 focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-700/20"
+      />
+    </div>
+
+    <p class="border-t border-surface-border pt-4 text-[11px] leading-relaxed text-zinc-500">
+      No hay selector de <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">color</code> —
+      <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">HaIcon</code> no expone ese input. El
+      color se hereda 100% vía CSS, mirá el ejemplo debajo.
+    </p>
+  </ng-container>
 
   <div class="mt-6 rounded-2xl border border-surface-border bg-white p-6 shadow-sm">
     <h3 class="mb-1 text-sm font-bold text-zinc-900">El color se hereda, no se configura</h3>
@@ -198,10 +130,10 @@
 &lt;/span&gt;"
     />
   </div>
-</section>
+</app-showcase-playground>
 
 <!-- SECTION 2: Icon Gallery -->
-<section id="gallery" class="mb-14 scroll-mt-6">
+<app-showcase-section id="gallery">
   <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
     <h2 class="text-2xl font-bold text-zinc-900">Galería de íconos</h2>
     <span class="font-mono text-xs text-zinc-500">{{ filteredIconNames().length }} / {{ allIconNames.length }}</span>
@@ -245,14 +177,11 @@
       <p class="text-sm text-zinc-500">Ningún ícono coincide con "{{ gallerySearch() }}".</p>
     </div>
   }
-</section>
+</app-showcase-section>
 
 <!-- SECTION 3: Integración -->
-<section class="mb-14">
-  <h2 class="mb-6 text-2xl font-bold text-zinc-900">Integración</h2>
-
+<app-showcase-section heading="Integración">
   <div class="flex flex-col gap-4">
-    <app-code-block label="Instalación" language="bash" code="npm install &#64;halolib-ui/angular &#64;angular/cdk" />
     <app-code-block
       label="Importación"
       language="typescript"
@@ -266,12 +195,13 @@ import type { HaIconName } from '&#64;halolib-ui/angular/icon';"
     <h3 class="mb-3 text-sm font-bold text-zinc-900">Ícono decorativo vs. ícono con significado</h3>
     <p class="mb-5 max-w-2xl text-xs leading-relaxed text-zinc-600">
       Sin <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">ariaLabel</code>, el ícono es
-      decorativo (<code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">aria-hidden="true"</code>,
-      sin <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">role</code>) — usalo así cuando ya
-      hay texto visible al lado. Con
+      decorativo (<code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700"
+        >aria-hidden=&quot;true&quot;</code
+      >, sin <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">role</code>) — usalo así cuando
+      ya hay texto visible al lado. Con
       <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">ariaLabel</code>, pasa a
-      <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">role="img"</code> — usalo cuando el
-      ícono es el único contenido de un control (p. ej. un botón icon-only).
+      <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">role=&quot;img&quot;</code> — usalo
+      cuando el ícono es el único contenido de un control (p. ej. un botón icon-only).
     </p>
     <app-code-block
       label="status-badge.component.html"
@@ -281,96 +211,25 @@ import type { HaIconName } from '&#64;halolib-ui/angular/icon';"
 &lt;/span&gt;'
     />
   </div>
-</section>
+</app-showcase-section>
 
 <!-- SECTION 4: API Reference -->
-<section id="api-reference" class="mb-14 scroll-mt-6">
-  <h2 class="mb-6 text-2xl font-bold text-zinc-900">API Reference</h2>
+<app-showcase-section id="api-reference">
+  <app-showcase-api-table [rows]="apiInputs">
+    <h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-500">Eventos</h3>
+    <p class="mb-8 max-w-3xl text-sm leading-relaxed text-zinc-600">
+      No expone eventos personalizados — es un ícono puramente visual.
+    </p>
 
-  <h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-500">Inputs</h3>
-  <div class="mb-8 overflow-x-auto rounded-2xl border border-surface-border bg-white shadow-sm">
-    <table class="w-full text-left text-sm">
-      <thead
-        class="border-b border-surface-border bg-surface-base text-[11px] font-bold uppercase tracking-wider text-zinc-500"
-      >
-        <tr>
-          <th class="px-4 py-3">Input</th>
-          <th class="px-4 py-3">Tipo</th>
-          <th class="px-4 py-3">Default</th>
-          <th class="px-4 py-3">Descripción</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-surface-border">
-        @for (row of apiInputs; track row.name) {
-          <tr>
-            <td class="px-4 py-3 font-mono text-xs font-semibold text-brand-700">{{ row.name }}</td>
-            <td class="px-4 py-3 font-mono text-xs text-zinc-600">{{ row.type }}</td>
-            <td class="px-4 py-3 font-mono text-xs text-zinc-600">{{ row.default }}</td>
-            <td class="px-4 py-3 text-xs text-zinc-600">{{ row.description }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  </div>
+    <h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-500">Slots</h3>
+    <p class="max-w-3xl text-sm leading-relaxed text-zinc-600">
+      Sin proyección de contenido — es un elemento vacío (<code
+        class="rounded bg-zinc-100 px-1.5 py-0.5 text-[0.9em] text-brand-700"
+        >&lt;ha-icon /&gt;</code
+      >), no lleva
+      <code class="rounded bg-zinc-100 px-1.5 py-0.5 text-[0.9em] text-brand-700">&lt;ng-content&gt;</code>.
+    </p>
+  </app-showcase-api-table>
+</app-showcase-section>
 
-  <h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-500">Eventos</h3>
-  <p class="mb-8 max-w-3xl text-sm leading-relaxed text-zinc-600">
-    No expone eventos personalizados — es un ícono puramente visual.
-  </p>
-
-  <h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-500">Slots</h3>
-  <p class="max-w-3xl text-sm leading-relaxed text-zinc-600">
-    Sin proyección de contenido — es un elemento vacío (<code
-      class="rounded bg-zinc-100 px-1.5 py-0.5 text-[0.9em] text-brand-700"
-      >&lt;ha-icon /&gt;</code
-    >), no lleva <code class="rounded bg-zinc-100 px-1.5 py-0.5 text-[0.9em] text-brand-700">&lt;ng-content&gt;</code>.
-  </p>
-</section>
-
-<div class="mt-4 flex items-center justify-between border-t border-surface-border pb-12 pt-4">
-  <a
-    routerLink="/componentes/select"
-    class="group flex items-center gap-3 rounded-2xl border border-surface-border bg-white px-6 py-3 shadow-sm transition-all hover:border-brand-600/40 hover:shadow"
-  >
-    <svg
-      class="h-4 w-4 text-zinc-400 transition-all group-hover:-translate-x-1 group-hover:text-brand-700"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      aria-hidden="true"
-    >
-      <line x1="19" x2="5" y1="12" y2="12" />
-      <polyline points="12 19 5 12 12 5" />
-    </svg>
-    <div>
-      <span class="block text-xs text-zinc-400">Anterior</span>
-      <span class="text-sm font-bold text-zinc-800 transition-colors group-hover:text-brand-700">Select</span>
-    </div>
-  </a>
-
-  <a
-    routerLink="/"
-    class="group flex items-center gap-3 rounded-2xl border border-surface-border bg-white px-6 py-3 shadow-sm transition-all hover:border-brand-600/40 hover:shadow"
-  >
-    <div class="text-right">
-      <span class="block text-xs text-zinc-400">Fin del recorrido</span>
-      <span class="text-sm font-bold text-zinc-800 transition-colors group-hover:text-brand-700">Volver al inicio</span>
-    </div>
-    <svg
-      class="h-4 w-4 text-zinc-400 transition-all group-hover:scale-110 group-hover:text-brand-700"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M3 11.5 12 4l9 7.5" />
-      <path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9" />
-    </svg>
-  </a>
-</div>
+<app-showcase-page-footer [prevLink]="prevLink" [nextLink]="nextLink" />

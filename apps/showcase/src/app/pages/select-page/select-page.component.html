@@ -1,155 +1,91 @@
-<ha-breadcrumb [items]="breadcrumbItems" class="mb-6" />
-
-<div class="mb-10 border-b border-surface-border pb-6">
-  <div class="mb-3 flex flex-wrap items-center gap-3">
-    <code class="rounded-lg bg-zinc-900 px-3 py-1.5 font-mono text-lg font-bold text-white sm:text-xl"
-      >&lt;ha-select&gt;</code
-    >
-    <span class="rounded-full bg-green-50 px-2.5 py-1 text-xs font-semibold text-green-700">Estable</span>
-    <span class="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700">v19.2.0</span>
-    <span class="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">Signals Ready</span>
-    <span class="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-semibold text-zinc-600">Angular 19.2+</span>
-  </div>
-  <p class="max-w-3xl text-[15px] font-normal leading-relaxed text-zinc-600 sm:text-base">
+<app-showcase-page-header selector="<ha-select>" statusBadge="Signals Ready" [jumpLinks]="jumpLinks">
+  <ha-breadcrumb breadcrumb [items]="breadcrumbItems" class="mb-6" />
+  <ng-container description>
     Combobox accesible y token-driven, a diferencia de
     <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">button[ha-button]</code> e
-    <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">input[ha-input-text]</code>
-    renderiza su propio trigger y un panel superpuesto vía Angular CDK. Expone tamaños, estado deshabilitado/solo
-    lectura, un estado de error 100% automático desde Angular Forms, y eventos reales de valor y apertura/cierre.
-  </p>
-  <div class="mt-4 flex items-center gap-5 text-sm">
-    <a href="#playground" class="inline-flex items-center gap-1.5 font-semibold text-brand-700 hover:text-brand-500">
-      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M8 5v14l11-7L8 5Z" stroke-linecap="round" stroke-linejoin="round" />
-      </svg>
-      Playground
-    </a>
-    <a href="#api-reference" class="inline-flex items-center gap-1.5 font-semibold text-brand-700 hover:text-brand-500">
-      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke-linecap="round" stroke-linejoin="round" />
-        <path
-          d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </svg>
-      API Docs
-    </a>
-  </div>
-</div>
+    <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">input[ha-input-text]</code> renderiza su
+    propio trigger y un panel superpuesto vía Angular CDK. Expone tamaños, estado deshabilitado/solo lectura, un estado
+    de error 100% automático desde Angular Forms, y eventos reales de valor y apertura/cierre.
+  </ng-container>
+</app-showcase-page-header>
 
 <!-- SECTION 1: Interactive Playground -->
-<section id="playground" class="mb-14 scroll-mt-6">
-  <h2 class="mb-6 text-2xl font-bold text-zinc-900">Playground interactivo</h2>
+<app-showcase-playground [activeTab]="activeTab()" [code]="generatedCode()" (tabChange)="activeTab.set($event)">
+  <div preview class="flex min-h-32 flex-col items-center justify-center gap-6 rounded-xl bg-surface-base p-6">
+    <ha-select
+      [options]="fruitOptions"
+      [size]="selectedSize()"
+      [disabled]="withDisabled()"
+      [readonly]="withReadonly()"
+      placeholder="Elegí una fruta"
+      class="w-full max-w-sm"
+      (valueChange)="onValueChange($event)"
+      (opened)="onOpened()"
+      (closed)="onClosed()"
+    />
 
-  <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
-    <div class="rounded-2xl border border-surface-border bg-white shadow-sm">
-      <div class="flex items-center gap-1 border-b border-surface-border p-2">
-        <button
-          type="button"
-          class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
-          [class]="activeTab() === 'preview' ? 'bg-surface-base text-brand-700' : 'text-zinc-500 hover:text-zinc-700'"
-          (click)="activeTab.set('preview')"
-        >
-          Vista previa
-        </button>
-        <button
-          type="button"
-          class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors"
-          [class]="activeTab() === 'code' ? 'bg-surface-base text-brand-700' : 'text-zinc-500 hover:text-zinc-700'"
-          (click)="activeTab.set('code')"
-        >
-          Código
-        </button>
+    <div class="grid w-full max-w-sm grid-cols-2 gap-3 rounded-xl border border-surface-border bg-white p-4">
+      <div>
+        <span class="mb-1 block text-[10px] font-bold uppercase tracking-wider text-zinc-400">Valor seleccionado</span>
+        <span class="font-mono text-xs font-semibold text-zinc-800">{{ selectedValue() ?? '—' }}</span>
       </div>
+      <div>
+        <span class="mb-1 block text-[10px] font-bold uppercase tracking-wider text-zinc-400">Panel abierto</span>
+        <span class="font-mono text-xs font-semibold text-zinc-800">{{ panelOpen() ? 'sí' : 'no' }}</span>
+      </div>
+    </div>
+  </div>
 
-      <div class="p-8">
-        @if (activeTab() === 'preview') {
-          <div class="flex min-h-32 flex-col items-center justify-center gap-6 rounded-xl bg-surface-base p-6">
-            <ha-select
-              [options]="fruitOptions"
-              [size]="selectedSize()"
-              [disabled]="withDisabled()"
-              [readonly]="withReadonly()"
-              placeholder="Elegí una fruta"
-              class="w-full max-w-sm"
-              (valueChange)="onValueChange($event)"
-              (opened)="onOpened()"
-              (closed)="onClosed()"
-            />
-
-            <div class="grid w-full max-w-sm grid-cols-2 gap-3 rounded-xl border border-surface-border bg-white p-4">
-              <div>
-                <span class="mb-1 block text-[10px] font-bold uppercase tracking-wider text-zinc-400"
-                  >Valor seleccionado</span
-                >
-                <span class="font-mono text-xs font-semibold text-zinc-800">{{ selectedValue() ?? '—' }}</span>
-              </div>
-              <div>
-                <span class="mb-1 block text-[10px] font-bold uppercase tracking-wider text-zinc-400"
-                  >Panel abierto</span
-                >
-                <span class="font-mono text-xs font-semibold text-zinc-800">{{ panelOpen() ? 'sí' : 'no' }}</span>
-              </div>
-            </div>
-          </div>
-        } @else {
-          <app-code-block label="Resultado" language="html" [code]="generatedCode()" />
+  <ng-container controls>
+    <div>
+      <span class="mb-2 block text-[11px] font-bold uppercase tracking-wider text-zinc-500">Size</span>
+      <div class="flex flex-wrap gap-2">
+        @for (s of sizes; track s) {
+          <button
+            type="button"
+            class="rounded-full border px-3 py-1.5 text-xs font-semibold uppercase transition-all"
+            [class]="
+              selectedSize() === s
+                ? 'border-brand-700 bg-brand-700 text-white'
+                : 'border-surface-border bg-white text-zinc-600 hover:border-brand-600/40'
+            "
+            (click)="selectedSize.set(s)"
+          >
+            {{ s }}
+          </button>
         }
       </div>
     </div>
 
-    <div class="flex flex-col gap-5 rounded-2xl border border-surface-border bg-white p-5 shadow-sm">
-      <div>
-        <span class="mb-2 block text-[11px] font-bold uppercase tracking-wider text-zinc-500">Size</span>
-        <div class="flex flex-wrap gap-2">
-          @for (s of sizes; track s) {
-            <button
-              type="button"
-              class="rounded-full border px-3 py-1.5 text-xs font-semibold uppercase transition-all"
-              [class]="
-                selectedSize() === s
-                  ? 'border-brand-700 bg-brand-700 text-white'
-                  : 'border-surface-border bg-white text-zinc-600 hover:border-brand-600/40'
-              "
-              (click)="selectedSize.set(s)"
-            >
-              {{ s }}
-            </button>
-          }
-        </div>
-      </div>
-
-      <div class="flex flex-col gap-2 border-t border-surface-border pt-4">
-        <label class="flex items-center gap-2 text-xs font-semibold text-zinc-700">
-          <input
-            type="checkbox"
-            class="h-4 w-4 rounded border-surface-borderstrong text-brand-700 focus:ring-brand-700"
-            [checked]="withDisabled()"
-            (change)="onDisabledToggle($event)"
-          />
-          disabled
-        </label>
-        <label class="flex items-center gap-2 text-xs font-semibold text-zinc-700">
-          <input
-            type="checkbox"
-            class="h-4 w-4 rounded border-surface-borderstrong text-brand-700 focus:ring-brand-700"
-            [checked]="withReadonly()"
-            (change)="onReadonlyToggle($event)"
-          />
-          readonly
-        </label>
-      </div>
-
-      <p class="border-t border-surface-border pt-4 text-[11px] leading-relaxed text-zinc-500">
-        No hay toggle de <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">multiple</code>,
-        <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">search</code> ni
-        <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">groups</code> porque
-        <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">HaSelect</code> no los expone — es
-        single-select, sin filtro interno y sin agrupación de opciones.
-      </p>
+    <div class="flex flex-col gap-2 border-t border-surface-border pt-4">
+      <label class="flex items-center gap-2 text-xs font-semibold text-zinc-700">
+        <input
+          type="checkbox"
+          class="h-4 w-4 rounded border-surface-borderstrong text-brand-700 focus:ring-brand-700"
+          [checked]="withDisabled()"
+          (change)="onDisabledToggle($event)"
+        />
+        disabled
+      </label>
+      <label class="flex items-center gap-2 text-xs font-semibold text-zinc-700">
+        <input
+          type="checkbox"
+          class="h-4 w-4 rounded border-surface-borderstrong text-brand-700 focus:ring-brand-700"
+          [checked]="withReadonly()"
+          (change)="onReadonlyToggle($event)"
+        />
+        readonly
+      </label>
     </div>
-  </div>
+
+    <p class="border-t border-surface-border pt-4 text-[11px] leading-relaxed text-zinc-500">
+      No hay toggle de <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">multiple</code>,
+      <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">search</code> ni
+      <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">groups</code> porque
+      <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">HaSelect</code> no los expone — es
+      single-select, sin filtro interno y sin agrupación de opciones.
+    </p>
+  </ng-container>
 
   <div class="mt-6 rounded-2xl border border-surface-border bg-white p-6 shadow-sm">
     <h3 class="mb-1 text-sm font-bold text-zinc-900">Validación real con Angular Forms</h3>
@@ -182,12 +118,10 @@
       }
     </div>
   </div>
-</section>
+</app-showcase-playground>
 
 <!-- SECTION 2: Anatomía real -->
-<section class="mb-14">
-  <h2 class="mb-6 text-2xl font-bold text-zinc-900">Anatomía real</h2>
-
+<app-showcase-section heading="Anatomía real">
   <div class="grid gap-4 sm:grid-cols-2">
     <div class="rounded-2xl border border-surface-border bg-white p-6 shadow-sm">
       <h3 class="mb-2 text-sm font-bold text-zinc-900">Un elemento propio, no un atributo</h3>
@@ -197,7 +131,9 @@
         <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">input[ha-input-text]</code>,
         <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">ha-select</code> es un custom element
         con template propio: un
-        <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">&lt;button role="combobox"&gt;</code>
+        <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700"
+          >&lt;button role=&quot;combobox&quot;&gt;</code
+        >
         como trigger, más un panel
         <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">CdkConnectedOverlay</code>.
       </p>
@@ -229,9 +165,10 @@
           >1</span
         >
         <div>
-          <p class="font-mono text-xs font-semibold text-zinc-900">&lt;button role="combobox"&gt;</p>
+          <p class="font-mono text-xs font-semibold text-zinc-900">&lt;button role=&quot;combobox&quot;&gt;</p>
           <p class="text-xs text-zinc-600">
-            El trigger. Lleva <code class="rounded bg-zinc-200 px-1 py-0.5 text-[0.9em]">aria-haspopup="listbox"</code>,
+            El trigger. Lleve
+            <code class="rounded bg-zinc-200 px-1 py-0.5 text-[0.9em]">aria-haspopup=&quot;listbox&quot;</code>,
             <code class="rounded bg-zinc-200 px-1 py-0.5 text-[0.9em]">aria-expanded</code>,
             <code class="rounded bg-zinc-200 px-1 py-0.5 text-[0.9em]">aria-controls</code> y
             <code class="rounded bg-zinc-200 px-1 py-0.5 text-[0.9em]">aria-activedescendant</code>.
@@ -244,7 +181,7 @@
           >2</span
         >
         <div>
-          <p class="font-mono text-xs font-semibold text-zinc-900">&lt;span class="ha-select__label"&gt;</p>
+          <p class="font-mono text-xs font-semibold text-zinc-900">&lt;span class=&quot;ha-select__label&quot;&gt;</p>
           <p class="text-xs text-zinc-600">
             Muestra la etiqueta de la opción seleccionada, o el
             <code class="rounded bg-zinc-200 px-1 py-0.5 text-[0.9em]">placeholder</code>
@@ -272,7 +209,7 @@
         >
         <div>
           <p class="font-mono text-xs font-semibold text-zinc-900">
-            &lt;ul role="listbox"&gt; / &lt;li role="option"&gt;
+            &lt;ul role=&quot;listbox&quot;&gt; / &lt;li role=&quot;option&quot;&gt;
           </p>
           <p class="text-xs text-zinc-600">
             Una opción por cada entrada de <code class="rounded bg-zinc-200 px-1 py-0.5 text-[0.9em]">[options]</code>,
@@ -283,11 +220,10 @@
       </div>
     </div>
   </div>
-</section>
+</app-showcase-section>
 
 <!-- SECTION 2b: Estados reales -->
-<section class="mb-14">
-  <h2 class="mb-6 text-2xl font-bold text-zinc-900">Estados reales</h2>
+<app-showcase-section heading="Estados reales">
   <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
     <div class="flex flex-col gap-3 rounded-2xl border border-surface-border bg-white p-5 shadow-sm">
       <ha-select [options]="fruitOptions" placeholder="Elegí una fruta" />
@@ -337,14 +273,11 @@
       >
     </div>
   </div>
-</section>
+</app-showcase-section>
 
 <!-- SECTION 3: Integración -->
-<section class="mb-14">
-  <h2 class="mb-6 text-2xl font-bold text-zinc-900">Integración</h2>
-
+<app-showcase-section heading="Integración">
   <div class="flex flex-col gap-4">
-    <app-code-block label="Instalación" language="bash" code="npm install &#64;halolib-ui/angular &#64;angular/cdk" />
     <app-code-block
       label="Importación"
       language="typescript"
@@ -413,73 +346,46 @@ export class PlanFieldComponent {
 }"
     />
   </div>
-</section>
+</app-showcase-section>
 
 <!-- SECTION 4: API Reference -->
-<section id="api-reference" class="mb-14 scroll-mt-6">
-  <h2 class="mb-6 text-2xl font-bold text-zinc-900">API Reference</h2>
-
-  <h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-500">Inputs</h3>
-  <div class="mb-8 overflow-x-auto rounded-2xl border border-surface-border bg-white shadow-sm">
-    <table class="w-full text-left text-sm">
-      <thead
-        class="border-b border-surface-border bg-surface-base text-[11px] font-bold uppercase tracking-wider text-zinc-500"
-      >
-        <tr>
-          <th class="px-4 py-3">Input</th>
-          <th class="px-4 py-3">Tipo</th>
-          <th class="px-4 py-3">Default</th>
-          <th class="px-4 py-3">Descripción</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-surface-border">
-        @for (row of apiInputs; track row.name) {
+<app-showcase-section id="api-reference">
+  <app-showcase-api-table [rows]="apiInputs">
+    <h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-500">Outputs</h3>
+    <div class="mb-8 overflow-x-auto rounded-2xl border border-surface-border bg-white shadow-sm">
+      <table class="w-full text-left text-sm">
+        <thead
+          class="border-b border-surface-border bg-surface-base text-[11px] font-bold uppercase tracking-wider text-zinc-500"
+        >
           <tr>
-            <td class="px-4 py-3 font-mono text-xs font-semibold text-brand-700">{{ row.name }}</td>
-            <td class="px-4 py-3 font-mono text-xs text-zinc-600">{{ row.type }}</td>
-            <td class="px-4 py-3 font-mono text-xs text-zinc-600">{{ row.default }}</td>
-            <td class="px-4 py-3 text-xs text-zinc-600">{{ row.description }}</td>
+            <th class="px-4 py-3">Output</th>
+            <th class="px-4 py-3">Tipo</th>
+            <th class="px-4 py-3">Descripción</th>
           </tr>
-        }
-      </tbody>
-    </table>
-  </div>
+        </thead>
+        <tbody class="divide-y divide-surface-border">
+          @for (row of apiOutputs; track row.name) {
+            <tr>
+              <td class="px-4 py-3 font-mono text-xs font-semibold text-brand-700">{{ row.name }}</td>
+              <td class="px-4 py-3 font-mono text-xs text-zinc-600">{{ row.type }}</td>
+              <td class="px-4 py-3 text-xs text-zinc-600">{{ row.description }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
 
-  <h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-500">Outputs</h3>
-  <div class="mb-8 overflow-x-auto rounded-2xl border border-surface-border bg-white shadow-sm">
-    <table class="w-full text-left text-sm">
-      <thead
-        class="border-b border-surface-border bg-surface-base text-[11px] font-bold uppercase tracking-wider text-zinc-500"
-      >
-        <tr>
-          <th class="px-4 py-3">Output</th>
-          <th class="px-4 py-3">Tipo</th>
-          <th class="px-4 py-3">Descripción</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-surface-border">
-        @for (row of apiOutputs; track row.name) {
-          <tr>
-            <td class="px-4 py-3 font-mono text-xs font-semibold text-brand-700">{{ row.name }}</td>
-            <td class="px-4 py-3 font-mono text-xs text-zinc-600">{{ row.type }}</td>
-            <td class="px-4 py-3 text-xs text-zinc-600">{{ row.description }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  </div>
-
-  <h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-500">Slots</h3>
-  <p class="max-w-3xl text-sm leading-relaxed text-zinc-600">
-    Sin proyección de contenido — las opciones se pasan como datos vía
-    <code class="rounded bg-zinc-100 px-1.5 py-0.5 text-[0.9em] text-brand-700">[options]</code>, no hay
-    <code class="rounded bg-zinc-100 px-1.5 py-0.5 text-[0.9em] text-brand-700">&lt;ng-content&gt;</code>.
-  </p>
-</section>
+    <h3 class="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-500">Slots</h3>
+    <p class="max-w-3xl text-sm leading-relaxed text-zinc-600">
+      Sin proyección de contenido — las opciones se pasan como datos vía
+      <code class="rounded bg-zinc-100 px-1.5 py-0.5 text-[0.9em] text-brand-700">[options]</code>, no hay
+      <code class="rounded bg-zinc-100 px-1.5 py-0.5 text-[0.9em] text-brand-700">&lt;ng-content&gt;</code>.
+    </p>
+  </app-showcase-api-table>
+</app-showcase-section>
 
 <!-- SECTION 5: Accesibilidad & Tokens -->
-<section class="mb-14">
-  <h2 class="mb-6 text-2xl font-bold text-zinc-900">Accesibilidad &amp; Tokens</h2>
+<app-showcase-section heading="Accesibilidad &amp; Tokens">
   <div class="grid gap-4 sm:grid-cols-3">
     <div class="flex items-start gap-3 rounded-2xl border border-surface-border bg-white p-5 shadow-sm">
       <span class="mt-0.5 shrink-0 text-brand-700" aria-hidden="true">
@@ -491,12 +397,15 @@ export class PlanFieldComponent {
       <div>
         <h3 class="mb-1 text-sm font-bold text-zinc-900">Patrón combobox real</h3>
         <p class="text-xs leading-relaxed text-zinc-600">
-          Trigger con <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">role="combobox"</code>,
-          <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">aria-haspopup="listbox"</code> y
-          <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">aria-expanded</code>. Panel con
-          <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">role="listbox"</code> /
-          <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">role="option"</code>. El foco NUNCA
-          se mueve al panel —
+          Trigger con
+          <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">role=&quot;combobox&quot;</code>,
+          <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700"
+            >aria-haspopup=&quot;listbox&quot;</code
+          >
+          y <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">aria-expanded</code>. Panel con
+          <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">role=&quot;listbox&quot;</code> /
+          <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">role=&quot;option&quot;</code>. El
+          foco NUNCA se mueve al panel —
           <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">aria-activedescendant</code>
           en el trigger indica la opción activa, vía
           <code class="rounded bg-zinc-100 px-1 py-0.5 text-[0.85em] text-brand-700">ActiveDescendantKeyManager</code>
@@ -552,52 +461,6 @@ export class PlanFieldComponent {
       </div>
     </div>
   </div>
-</section>
+</app-showcase-section>
 
-<div class="mt-4 flex items-center justify-between border-t border-surface-border pb-12 pt-4">
-  <a
-    routerLink="/componentes/input-text"
-    class="group flex items-center gap-3 rounded-2xl border border-surface-border bg-white px-6 py-3 shadow-sm transition-all hover:border-brand-600/40 hover:shadow"
-  >
-    <svg
-      class="h-4 w-4 text-zinc-400 transition-all group-hover:-translate-x-1 group-hover:text-brand-700"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      aria-hidden="true"
-    >
-      <line x1="19" x2="5" y1="12" y2="12" />
-      <polyline points="12 19 5 12 12 5" />
-    </svg>
-    <div>
-      <span class="block text-xs text-zinc-400">Anterior</span>
-      <span class="text-sm font-bold text-zinc-800 transition-colors group-hover:text-brand-700">InputText</span>
-    </div>
-  </a>
-
-  <a
-    routerLink="/"
-    class="group flex items-center gap-3 rounded-2xl border border-surface-border bg-white px-6 py-3 shadow-sm transition-all hover:border-brand-600/40 hover:shadow"
-  >
-    <div class="text-right">
-      <span class="block text-xs text-zinc-400">Fin del recorrido</span>
-      <span class="text-sm font-bold text-zinc-800 transition-colors group-hover:text-brand-700">Volver al inicio</span>
-    </div>
-    <svg
-      class="h-4 w-4 text-zinc-400 transition-all group-hover:scale-110 group-hover:text-brand-700"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M3 11.5 12 4l9 7.5" />
-      <path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9" />
-    </svg>
-  </a>
-</div>
+<app-showcase-page-footer [prevLink]="prevLink" [nextLink]="nextLink" />

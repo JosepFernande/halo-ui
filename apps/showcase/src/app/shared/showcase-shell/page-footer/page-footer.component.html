@@ -1,0 +1,71 @@
+<div class="mt-4 flex items-center justify-between border-t border-surface-border pb-12 pt-4">
+  @if (prevLink(); as prev) {
+    <a
+      [routerLink]="prev.path"
+      class="group flex items-center gap-3 rounded-2xl border border-surface-border bg-white px-6 py-3 shadow-sm transition-all hover:border-brand-600/40 hover:shadow"
+    >
+      <svg
+        class="h-4 w-4 text-zinc-400 transition-all group-hover:-translate-x-1 group-hover:text-brand-700"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <line x1="19" x2="5" y1="12" y2="12" />
+        <polyline points="12 19 5 12 12 5" />
+      </svg>
+      <div>
+        <span class="block text-xs text-zinc-400">{{ prev.hint }}</span>
+        <span class="text-sm font-bold text-zinc-800 transition-colors group-hover:text-brand-700">{{
+          prev.label
+        }}</span>
+      </div>
+    </a>
+  }
+
+  @if (nextLink(); as next) {
+    <a
+      [routerLink]="next.path"
+      class="group flex items-center gap-3 rounded-2xl border border-surface-border bg-white px-6 py-3 shadow-sm transition-all hover:border-brand-600/40 hover:shadow"
+    >
+      <div class="text-right">
+        <span class="block text-xs text-zinc-400">{{ next.hint }}</span>
+        <span class="text-sm font-bold text-zinc-800 transition-colors group-hover:text-brand-700">{{
+          next.label
+        }}</span>
+      </div>
+      @if (next.icon === 'home') {
+        <svg
+          class="h-4 w-4 text-zinc-400 transition-all group-hover:scale-110 group-hover:text-brand-700"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M3 11.5 12 4l9 7.5" />
+          <path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9" />
+        </svg>
+      } @else {
+        <svg
+          class="h-4 w-4 text-zinc-400 transition-all group-hover:translate-x-1 group-hover:text-brand-700"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <line x1="5" x2="19" y1="12" y2="12" />
+          <polyline points="12 5 19 12 12 19" />
+        </svg>
+      }
+    </a>
+  }
+</div>
